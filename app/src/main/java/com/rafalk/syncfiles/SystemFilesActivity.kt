@@ -6,13 +6,16 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_system_files.*
 import timber.log.Timber
+import java.io.File
 
 
 class SystemFilesActivity : AppCompatActivity(), SystemFilesListFragment.OnListFragmentInteractionListener {
     private val REQUEST_WRITE_STORAGE_REQUEST_CODE = 2
+    lateinit var currentDirectory: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,15 +26,15 @@ class SystemFilesActivity : AppCompatActivity(), SystemFilesListFragment.OnListF
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+            Snackbar.make(view, currentDirectory.absolutePath, Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
 
     }
 
     override fun onListFragmentInteraction(item: SystemFilesViewAdapter.FileItem?) {
-//        TODO("Not yet implemented")
         Timber.d("Clicked ${item?.file?.absolutePath}")
+        currentDirectory = item?.file!!
     }
 
     private fun requestAppPermissions() {

@@ -23,13 +23,13 @@ class SystemFilesViewAdapter(
 
     private val mOnClickListener: View.OnClickListener
     private var mValues: MutableList<FileItem> = ArrayList()
+    private lateinit var currentFile : File
 
     init {
         mOnClickListener = View.OnClickListener { v ->
             val item = v.tag as FileItem
             // Notify the active callbacks interface (the activity, if the fragment is attached to
             // one) that an item has been selected.
-            mListener?.onListFragmentInteraction(item)
             if(item.file.isDirectory){
                 mValues.clear()
                 addFiles(item.file.listFiles(), item.file)
@@ -53,6 +53,8 @@ class SystemFilesViewAdapter(
         if(current.toString() == Environment.getExternalStorageDirectory().toString()){
             parentFile = current
         }
+        currentFile = current
+        mListener?.onListFragmentInteraction(FileItem(".", currentFile))
         mValues.add(0, FileItem("..", parentFile))
         for (i in files.indices) {
             var name = files[i].name
