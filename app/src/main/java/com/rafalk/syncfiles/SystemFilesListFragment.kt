@@ -9,9 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.rafalk.syncfiles.dummy.DummyContent
 
-import com.rafalk.syncfiles.dummy.DummyContent.DummyItem
 
 /**
  * A fragment representing a list of Items.
@@ -46,7 +44,7 @@ class SystemFilesListFragment : Fragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                adapter = MySystemFileRecyclerViewAdapter(DummyContent.ITEMS, listener)
+                adapter = MySystemFileRecyclerViewAdapter(listener)
             }
         }
         return view
@@ -79,7 +77,7 @@ class SystemFilesListFragment : Fragment() {
      */
     interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        fun onListFragmentInteraction(item: DummyItem?)
+        fun onListFragmentInteraction(item: MySystemFileRecyclerViewAdapter.FileItem?)
     }
 
     companion object {
