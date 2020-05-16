@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -40,11 +41,12 @@ class SystemFilesListFragment : Fragment() {
         // Set the adapter
         if (view is RecyclerView) {
             with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
                 adapter = SystemFilesViewAdapter(listener)
+                layoutManager = LinearLayoutManager(context)
+                addItemDecoration(
+                    DividerItemDecoration(view.getContext(),
+                        DividerItemDecoration.VERTICAL
+                    ))
             }
         }
         return view

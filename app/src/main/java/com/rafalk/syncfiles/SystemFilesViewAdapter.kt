@@ -7,8 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.rafalk.syncfiles.SystemFilesViewAdapter.FileItem
 import com.rafalk.syncfiles.SystemFilesListFragment.OnListFragmentInteractionListener
+import com.rafalk.syncfiles.SystemFilesViewAdapter.FileItem
 import kotlinx.android.synthetic.main.fragment_system_file.view.*
 import timber.log.Timber
 import java.io.File
