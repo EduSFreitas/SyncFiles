@@ -44,7 +44,7 @@ class SystemFilesListFragment : Fragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                adapter = MySystemFileRecyclerViewAdapter(listener)
+                adapter = SystemFilesViewAdapter(listener)
             }
         }
         return view
@@ -77,7 +77,7 @@ class SystemFilesListFragment : Fragment() {
      */
     interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        fun onListFragmentInteraction(item: MySystemFileRecyclerViewAdapter.FileItem?)
+        fun onListFragmentInteraction(item: SystemFilesViewAdapter.FileItem?)
     }
 
     companion object {

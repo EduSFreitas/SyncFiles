@@ -29,7 +29,7 @@ class SystemFilesActivity : AppCompatActivity(), SystemFilesListFragment.OnListF
 
     }
 
-    override fun onListFragmentInteraction(item: MySystemFileRecyclerViewAdapter.FileItem?) {
+    override fun onListFragmentInteraction(item: SystemFilesViewAdapter.FileItem?) {
 //        TODO("Not yet implemented")
         Timber.d("Clicked ${item?.file?.absolutePath}")
     }

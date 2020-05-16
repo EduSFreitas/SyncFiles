@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.rafalk.syncfiles.MySystemFileRecyclerViewAdapter.FileItem
+import com.rafalk.syncfiles.SystemFilesViewAdapter.FileItem
 import com.rafalk.syncfiles.SystemFilesListFragment.OnListFragmentInteractionListener
 import kotlinx.android.synthetic.main.fragment_system_file.view.*
 import timber.log.Timber
@@ -17,9 +17,9 @@ import java.io.File
  * [RecyclerView.Adapter] that can display a [FileItem] and makes a call to the
  * specified [OnListFragmentInteractionListener].
  */
-class MySystemFileRecyclerViewAdapter(
+class SystemFilesViewAdapter(
     private val mListener: OnListFragmentInteractionListener?
-) : RecyclerView.Adapter<MySystemFileRecyclerViewAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<SystemFilesViewAdapter.ViewHolder>() {
 
     private val mOnClickListener: View.OnClickListener
     private var mValues: MutableList<FileItem> = ArrayList()
