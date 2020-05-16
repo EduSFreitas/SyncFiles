@@ -13,7 +13,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -70,11 +69,14 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        val button: Button = findViewById(R.id.button)
-        button.setOnClickListener { view ->
+        val addAccountButton: Button = findViewById(R.id.add_account_button)
+        addAccountButton.setOnClickListener { view ->
             Snackbar.make(view, "Elo", Snackbar.LENGTH_SHORT).show()
             requestSignInToGoogleAccount()
         }
+
+        val addFileButton: Button = findViewById(R.id.add_file_button)
+//        addFileButton.setOnClickListener { openFile() }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -89,12 +91,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     }
 
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, intent: Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
         Timber.d("onActivityResult=$requestCode")
         when (requestCode) {
             REQUEST_SIGN_IN -> {
-                if (resultCode == RESULT_OK && intent != null) {
-                    getGoogleDriveService(intent)
+                if (resultCode == RESULT_OK && result != null) {
+                    getGoogleDriveService(result)
                     listSomeFiles()
                 } else {
                     Timber.d("Signin request failed")
@@ -102,17 +104,20 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             }
         }
 
-        super.onActivityResult(requestCode, resultCode, intent)
+        super.onActivityResult(requestCode, resultCode, result)
     }
 
     private fun listSomeFiles() {
         launch(Dispatchers.Default) {
             try {
-                val result = googleDriveService.files().list()
-                    .setPageSize(10)
+                val result = googleDriveService
+                    .files().list()
+                    .setSpaces("drive")
+                    .setQ("'root' in parents")
                     .setFields("nextPageToken, files(id, name)")
+                    .setPageToken(null)
                     .execute()
-                Timber.d("Result received ${result}")
+                Timber.d("Result received $result")
                 for (file in result.files) {
                     Timber.d("name=${file.name}, id=${file.id}")
                 }
@@ -133,7 +138,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         googleDriveService = Drive.Builder(
             AndroidHttp.newCompatibleTransport(),
             JacksonFactory.getDefaultInstance(),
-            credential)
+            credential
+        )
             .setApplicationName(getString(R.string.app_name))
             .build()
     }
