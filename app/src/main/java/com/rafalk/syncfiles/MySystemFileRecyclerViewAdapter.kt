@@ -30,18 +30,36 @@ class MySystemFileRecyclerViewAdapter(
             // Notify the active callbacks interface (the activity, if the fragment is attached to
             // one) that an item has been selected.
             mListener?.onListFragmentInteraction(item)
+            if(item.file.isDirectory){
+                mValues.clear()
+                addFiles(item.file.listFiles(), item.file)
+                notifyDataSetChanged()
+            }
         }
 
+        addRootFiles()
+    }
+
+    private fun addRootFiles() {
         val directory = File(Environment.getExternalStorageDirectory().toString())
         Timber.d("Path: %s", directory.toString())
         val files = directory.listFiles()
         Timber.d("Size: ${files.size}")
+        addFiles(files, directory)
+    }
+
+    private fun addFiles(files: Array<File>, current: File) {
+        var parentFile = current.parentFile
+        if(current.toString() == Environment.getExternalStorageDirectory().toString()){
+            parentFile = current
+        }
+        mValues.add(0, FileItem("..", parentFile))
         for (i in files.indices) {
             var name = files[i].name
-            if (files[i]?.isDirectory!!){
-                name+='/'
+            if (files[i].isDirectory) {
+                name += '/'
             }
-            mValues.add(i, FileItem(name, files[i]))
+            mValues.add(i+1, FileItem(name, files[i]))
             Timber.d("FileName: ${files[i].name}")
         }
     }
