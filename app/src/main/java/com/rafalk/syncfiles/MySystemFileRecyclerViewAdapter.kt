@@ -16,10 +16,8 @@ import java.io.File
 /**
  * [RecyclerView.Adapter] that can display a [FileItem] and makes a call to the
  * specified [OnListFragmentInteractionListener].
- * TODO: Replace the implementation with code for your data type.
  */
 class MySystemFileRecyclerViewAdapter(
-//    private val mValues: List<DummyItem>,
     private val mListener: OnListFragmentInteractionListener?
 ) : RecyclerView.Adapter<MySystemFileRecyclerViewAdapter.ViewHolder>() {
 
@@ -39,7 +37,11 @@ class MySystemFileRecyclerViewAdapter(
         val files = directory.listFiles()
         Timber.d("Size: ${files.size}")
         for (i in files.indices) {
-            mValues.add(i, FileItem(i.toString(), files[i].name, files[i]))
+            var name = files[i].name
+            if (files[i]?.isDirectory!!){
+                name+='/'
+            }
+            mValues.add(i, FileItem(name, files[i]))
             Timber.d("FileName: ${files[i].name}")
         }
     }
@@ -52,7 +54,6 @@ class MySystemFileRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mValues[position]
-        holder.mIdView.text = item.id
         holder.mContentView.text = item.content
 
         with(holder.mView) {
@@ -64,7 +65,6 @@ class MySystemFileRecyclerViewAdapter(
     override fun getItemCount(): Int = mValues.size
 
     inner class ViewHolder(val mView: View) : RecyclerView.ViewHolder(mView) {
-        val mIdView: TextView = mView.item_number
         val mContentView: TextView = mView.content
 
         override fun toString(): String {
@@ -72,7 +72,7 @@ class MySystemFileRecyclerViewAdapter(
         }
     }
 
-    data class FileItem(val id: String, val content: String, val file: File) {
+    data class FileItem(val content: String, val file: File) {
         override fun toString(): String = content
     }
 }
