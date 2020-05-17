@@ -1,26 +1,64 @@
 package com.rafalk.syncfiles
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.Fragment
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.Scope
 import com.google.android.material.snackbar.Snackbar
+import com.google.api.client.extensions.android.http.AndroidHttp
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
+import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.services.drive.Drive
+import com.google.api.services.drive.DriveScopes
 import kotlinx.android.synthetic.main.activity_system_files.*
+import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.File
 
 
-class SystemFilesActivity : AppCompatActivity(), SystemFilesListFragment.OnListFragmentInteractionListener {
-    private val REQUEST_WRITE_STORAGE_REQUEST_CODE = 2
+class SystemFilesActivity : AppCompatActivity(),
+    SystemFilesListFragment.OnListFragmentInteractionListener,
+    SystemFilesListFragment.OnDriveListFragmentInteractionListener,
+    CoroutineScope by MainScope() {
+
     lateinit var currentDirectory: File
+    private lateinit var googleDriveService: Drive
+
+    companion object {
+        const val REQUEST_SIGN_IN = 1
+        private const val REQUEST_WRITE_STORAGE_REQUEST_CODE = 2
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
+        Timber.d("onActivityResult=$requestCode")
+        when (requestCode) {
+            REQUEST_SIGN_IN -> {
+                if (resultCode == RESULT_OK && result != null) {
+                    Timber.d("Signin successful")
+//                    getGoogleDriveService(result)
+//                    listSomeFiles()
+                } else {
+                    Timber.d("Signin request failed")
+                }
+            }
+        }
+
+        super.onActivityResult(requestCode, resultCode, result)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.plant(Timber.DebugTree())
-        requestAppPermissions();
+        requestAppPermissions()
+        requestSignInToGoogleAccount()
 
         setContentView(R.layout.activity_system_files)
         setSupportActionBar(toolbar)
@@ -30,6 +68,11 @@ class SystemFilesActivity : AppCompatActivity(), SystemFilesListFragment.OnListF
                 .setAction("Action", null).show()
         }
 
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cancel()
     }
 
     override fun onListFragmentInteraction(item: SystemFilesViewAdapter.FileItem?) {
@@ -61,5 +104,56 @@ class SystemFilesActivity : AppCompatActivity(), SystemFilesListFragment.OnListF
             baseContext,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun requestSignInToGoogleAccount() {
+        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestScopes(Scope(DriveScopes.DRIVE))
+            .requestEmail()
+            .build()
+        val googleSignInClient = GoogleSignIn.getClient(this, signInOptions)
+        Timber.d("Client received")
+        startActivityForResult(googleSignInClient.signInIntent, REQUEST_SIGN_IN)
+    }
+
+    private fun getGoogleDriveService(intent: Intent) {
+        val googleAccount = GoogleSignIn.getSignedInAccountFromIntent(intent).result
+
+        // Use the authenticated account to sign in to the Drive service.
+        val credential = GoogleAccountCredential.usingOAuth2(
+            this, listOf(DriveScopes.DRIVE_FILE)
+        )
+        credential.selectedAccount = googleAccount!!.account
+        googleDriveService = Drive.Builder(
+            AndroidHttp.newCompatibleTransport(),
+            JacksonFactory.getDefaultInstance(),
+            credential
+        )
+            .setApplicationName(getString(R.string.app_name))
+            .build()
+    }
+
+    private fun listSomeFiles() {
+        launch(Dispatchers.Default) {
+            try {
+                val result = googleDriveService
+                    .files().list()
+                    .setSpaces("drive")
+                    .setQ("'root' in parents")
+                    .setFields("nextPageToken, files(id, name)")
+                    .setPageToken(null)
+                    .execute()
+                Timber.d("Result received $result")
+                for (file in result.files) {
+                    Timber.d("name=${file.name}, id=${file.id}")
+                }
+            } catch (e: UserRecoverableAuthIOException) {
+                startActivityForResult(e.intent, REQUEST_SIGN_IN);
+            }
+        }
+    }
+
+    override fun onDriveListFragmentInteraction(item: DriveFilesViewAdapter.FileItem?) {
+        Timber.d("Clicked ${item?.content}")
     }
 }
