@@ -48,7 +48,6 @@ class DriveFilesViewAdapter(
 
     private fun addFilesFromDirectory(item: DriveItem) {
         mListener?.onDriveListFragmentInteraction(item)
-        mValues.clear()
         launch(Dispatchers.Default) {
             val result = googleDriveService
                 .files().list()
@@ -71,6 +70,7 @@ class DriveFilesViewAdapter(
     }
 
     private fun addFilesToList(result: FileList, currentDir: DriveItem) {
+        mValues.clear()
         if (currentDir.parent != null) {
             mValues.add(DriveItem("..", currentDir.parent.file, currentDir.parent.parent))
         }
