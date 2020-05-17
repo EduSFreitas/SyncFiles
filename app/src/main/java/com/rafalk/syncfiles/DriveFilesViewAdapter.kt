@@ -31,28 +31,35 @@ class DriveFilesViewAdapter(
     init {
         mOnClickListener = View.OnClickListener { v ->
             val item = v.tag as FileItem
-            if(isDirectory(item.file)){
-                addFilesFromDirectory(item.file.id)
+            if (isDirectory(item.file)) {
+                addFilesFromDirectory(item)
             }
         }
+        launch(Dispatchers.Default) {
+            val result = googleDriveService
+                .files().get("root")
+                .setFields("id, name, mimeType")
+                .execute()
+            Timber.d("Result received $result")
+            addFilesFromDirectory(FileItem("root", result, null))
+        }
 
-        addFilesFromDirectory("root")
     }
 
-    private fun addFilesFromDirectory(id: String) {
+    private fun addFilesFromDirectory(item: FileItem) {
         mValues.clear()
         launch(Dispatchers.Default) {
             val result = googleDriveService
                 .files().list()
                 .setSpaces("drive")
-                .setQ("'${id}' in parents")
+                .setQ("'${item.file.id}' in parents")
                 .setFields("nextPageToken, files(id, name, mimeType)")
                 .setPageToken(null)
                 .execute()
             Timber.d("Result received $result")
 
-            launch (Dispatchers.Main ){
-                addFilesToList(result)
+            launch(Dispatchers.Main) {
+                addFilesToList(result, item)
             }
         }
     }
@@ -62,36 +69,21 @@ class DriveFilesViewAdapter(
         return file.mimeType == "application/vnd.google-apps.folder"
     }
 
-    private fun addFilesToList(result: FileList) {
+    private fun addFilesToList(result: FileList, currentDir: FileItem) {
+        if (currentDir.parent != null) {
+            mValues.add(FileItem("..", currentDir.parent.file, currentDir.parent.parent))        } else {
+        }
         for (i in result.files.indices) {
             val file = result.files[i]
             var name = file.name
-            if(isDirectory(file)){
-                name+='/'
+            if (isDirectory(file)) {
+                name += '/'
             }
             Timber.d("i=${i} name=${name}")
-            mValues.add(i, FileItem(name, file))
+            mValues.add(FileItem(name, file, currentDir))
         }
         notifyDataSetChanged()
     }
-
-//    private fun addFiles(files: Array<File>, current: File) {
-//        var parentFile = current.parentFile
-//        if (current.toString() == Environment.getExternalStorageDirectory().toString()) {
-//            parentFile = current
-//        }
-//        currentFile = current
-//        mListener?.onDriveListFragmentInteraction(FileItem(".", currentFile))
-//        mValues.add(0, FileItem("..", parentFile))
-//        for (i in files.indices) {
-//            var name = files[i].name
-//            if (files[i].isDirectory) {
-//                name += '/'
-//            }
-//            mValues.add(i + 1, FileItem(name, files[i]))
-//            Timber.d("FileName: ${files[i].name}")
-//        }
-//    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -119,7 +111,11 @@ class DriveFilesViewAdapter(
         }
     }
 
-    data class FileItem(val content: String, val file: com.google.api.services.drive.model.File) {
+    data class FileItem(
+        val content: String,
+        val file: com.google.api.services.drive.model.File,
+        val parent: FileItem?
+    ) {
         override fun toString(): String = content
     }
 }
