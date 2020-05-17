@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.model.FileList
-import com.rafalk.syncfiles.DriveFilesViewAdapter.FileItem
+import com.rafalk.syncfiles.DriveFilesViewAdapter.DriveItem
 import kotlinx.android.synthetic.main.fragment_system_file.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
- * [RecyclerView.Adapter] that can display a [FileItem] and makes a call to the
+ * [RecyclerView.Adapter] that can display a [DriveItem] and makes a call to the
  * specified [OnDriveListFragmentInteractionListener].
  */
 class DriveFilesViewAdapter(
@@ -26,11 +26,11 @@ class DriveFilesViewAdapter(
 ) : RecyclerView.Adapter<DriveFilesViewAdapter.ViewHolder>(), CoroutineScope by MainScope() {
 
     private val mOnClickListener: View.OnClickListener
-    private var mValues: MutableList<FileItem> = ArrayList()
+    private var mValues: MutableList<DriveItem> = ArrayList()
 
     init {
         mOnClickListener = View.OnClickListener { v ->
-            val item = v.tag as FileItem
+            val item = v.tag as DriveItem
             if (isDirectory(item.file)) {
                 addFilesFromDirectory(item)
             }
@@ -41,12 +41,13 @@ class DriveFilesViewAdapter(
                 .setFields("id, name, mimeType")
                 .execute()
             Timber.d("Result received $result")
-            addFilesFromDirectory(FileItem("root", result, null))
+            addFilesFromDirectory(DriveItem("root", result, null))
         }
 
     }
 
-    private fun addFilesFromDirectory(item: FileItem) {
+    private fun addFilesFromDirectory(item: DriveItem) {
+        mListener?.onDriveListFragmentInteraction(item)
         mValues.clear()
         launch(Dispatchers.Default) {
             val result = googleDriveService
@@ -69,9 +70,9 @@ class DriveFilesViewAdapter(
         return file.mimeType == "application/vnd.google-apps.folder"
     }
 
-    private fun addFilesToList(result: FileList, currentDir: FileItem) {
+    private fun addFilesToList(result: FileList, currentDir: DriveItem) {
         if (currentDir.parent != null) {
-            mValues.add(FileItem("..", currentDir.parent.file, currentDir.parent.parent))        } else {
+            mValues.add(DriveItem("..", currentDir.parent.file, currentDir.parent.parent))
         }
         for (i in result.files.indices) {
             val file = result.files[i]
@@ -80,7 +81,7 @@ class DriveFilesViewAdapter(
                 name += '/'
             }
             Timber.d("i=${i} name=${name}")
-            mValues.add(FileItem(name, file, currentDir))
+            mValues.add(DriveItem(name, file, currentDir))
         }
         notifyDataSetChanged()
     }
@@ -111,10 +112,10 @@ class DriveFilesViewAdapter(
         }
     }
 
-    data class FileItem(
+    data class DriveItem(
         val content: String,
         val file: com.google.api.services.drive.model.File,
-        val parent: FileItem?
+        val parent: DriveItem?
     ) {
         override fun toString(): String = content
     }

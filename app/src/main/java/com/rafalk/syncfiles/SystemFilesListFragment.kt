@@ -127,7 +127,7 @@ class SystemFilesListFragment : Fragment(), CoroutineScope by MainScope() {
     }
 
     interface OnDriveListFragmentInteractionListener {
-        fun onDriveListFragmentInteraction(item: DriveFilesViewAdapter.FileItem?)
+        fun onDriveListFragmentInteraction(item: DriveFilesViewAdapter.DriveItem?)
     }
 
     companion object {

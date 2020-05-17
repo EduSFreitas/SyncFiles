@@ -7,7 +7,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
@@ -30,6 +29,7 @@ class SystemFilesActivity : AppCompatActivity(),
     CoroutineScope by MainScope() {
 
     lateinit var currentDirectory: File
+    lateinit var currentDriveDirectory: DriveFilesViewAdapter.DriveItem
     private lateinit var googleDriveService: Drive
 
     companion object {
@@ -63,11 +63,23 @@ class SystemFilesActivity : AppCompatActivity(),
         setContentView(R.layout.activity_system_files)
         setSupportActionBar(toolbar)
 
+//        fab.setOnClickListener { view ->
+//            Snackbar.make(view, currentDirectory.absolutePath, Snackbar.LENGTH_LONG)
+//                .setAction("Action", null).show()
+//        }
+
         fab.setOnClickListener { view ->
-            Snackbar.make(view, currentDirectory.absolutePath, Snackbar.LENGTH_LONG)
+            Snackbar.make(view, getDrivePath(currentDriveDirectory), Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
         }
 
+    }
+
+    private fun getDrivePath(directory: DriveFilesViewAdapter.DriveItem): String {
+        if (directory.parent == null) {
+            return "/"
+        }
+        return getDrivePath(directory.parent)  + directory.file.name + '/'
     }
 
     override fun onDestroy() {
@@ -116,44 +128,10 @@ class SystemFilesActivity : AppCompatActivity(),
         startActivityForResult(googleSignInClient.signInIntent, REQUEST_SIGN_IN)
     }
 
-    private fun getGoogleDriveService(intent: Intent) {
-        val googleAccount = GoogleSignIn.getSignedInAccountFromIntent(intent).result
-
-        // Use the authenticated account to sign in to the Drive service.
-        val credential = GoogleAccountCredential.usingOAuth2(
-            this, listOf(DriveScopes.DRIVE_FILE)
-        )
-        credential.selectedAccount = googleAccount!!.account
-        googleDriveService = Drive.Builder(
-            AndroidHttp.newCompatibleTransport(),
-            JacksonFactory.getDefaultInstance(),
-            credential
-        )
-            .setApplicationName(getString(R.string.app_name))
-            .build()
-    }
-
-    private fun listSomeFiles() {
-        launch(Dispatchers.Default) {
-            try {
-                val result = googleDriveService
-                    .files().list()
-                    .setSpaces("drive")
-                    .setQ("'root' in parents")
-                    .setFields("nextPageToken, files(id, name)")
-                    .setPageToken(null)
-                    .execute()
-                Timber.d("Result received $result")
-                for (file in result.files) {
-                    Timber.d("name=${file.name}, id=${file.id}")
-                }
-            } catch (e: UserRecoverableAuthIOException) {
-                startActivityForResult(e.intent, REQUEST_SIGN_IN);
-            }
-        }
-    }
-
-    override fun onDriveListFragmentInteraction(item: DriveFilesViewAdapter.FileItem?) {
+    override fun onDriveListFragmentInteraction(item: DriveFilesViewAdapter.DriveItem?) {
         Timber.d("Clicked ${item?.content}")
+        if (item != null) {
+            currentDriveDirectory = item
+        }
     }
 }
