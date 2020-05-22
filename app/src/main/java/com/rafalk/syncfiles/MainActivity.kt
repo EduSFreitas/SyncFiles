@@ -20,6 +20,9 @@ import com.google.android.gms.common.api.Scope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.google.api.client.extensions.android.http.AndroidHttp
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import kotlinx.coroutines.CoroutineScope
@@ -36,6 +39,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         private const val GET_DRIVE_DIR_PATH = 2
         private const val GET_LOCAL_DIR_PATH = 3
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
@@ -89,6 +93,13 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             intent.putExtra("PICKER_TYPE", "local")
             startActivityForResult(intent, GET_LOCAL_DIR_PATH)
         } }
+
+        val syncButton = findViewById<Button>(R.id.sync_button)
+        syncButton.setOnClickListener { run {
+            val driveDirId = "1UIvISGnOktQN9dTmq5-ab-JfKBGvO4sl"
+            val localDir = "/storage/emulated/0/Download/test"
+            SyncDirs(driveDirId, localDir, getGoogleDriveService())
+        } }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -140,5 +151,22 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         val googleSignInClient = GoogleSignIn.getClient(this, signInOptions)
         Timber.d("Client received")
         startActivityForResult(googleSignInClient.signInIntent, REQUEST_SIGN_IN)
+    }
+
+    private fun getGoogleDriveService(): Drive {
+        val googleAccount = GoogleSignIn.getLastSignedInAccount(this)
+
+        // Use the authenticated account to sign in to the Drive service.
+        val credential = GoogleAccountCredential.usingOAuth2(
+            this, listOf(DriveScopes.DRIVE_FILE)
+        )
+        credential.selectedAccount = googleAccount!!.account
+        return Drive.Builder(
+            AndroidHttp.newCompatibleTransport(),
+            JacksonFactory.getDefaultInstance(),
+            credential
+        )
+            .setApplicationName(getString(R.string.app_name))
+            .build()
     }
 }
