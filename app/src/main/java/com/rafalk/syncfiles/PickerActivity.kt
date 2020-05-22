@@ -11,25 +11,21 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
 import com.google.android.material.snackbar.Snackbar
-import com.google.api.client.extensions.android.http.AndroidHttp
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
-import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import kotlinx.android.synthetic.main.activity_system_files.*
+import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.File
 
 
-class SystemFilesActivity : AppCompatActivity(),
-    SystemFilesListFragment.OnListFragmentInteractionListener,
-    SystemFilesListFragment.OnDriveListFragmentInteractionListener,
+class PickerActivity : AppCompatActivity(),
+    FilesListFragment.OnListFragmentInteractionListener,
+    FilesListFragment.OnDriveListFragmentInteractionListener,
     CoroutineScope by MainScope() {
 
     lateinit var currentDirectory: File
-    lateinit var currentDriveDirectory: DriveFilesViewAdapter.DriveItem
+    lateinit var currentDriveDirectory: DriveFilesAdapter.DriveItem
     private lateinit var googleDriveService: Drive
 
     companion object {
@@ -43,8 +39,6 @@ class SystemFilesActivity : AppCompatActivity(),
             REQUEST_SIGN_IN -> {
                 if (resultCode == RESULT_OK && result != null) {
                     Timber.d("Signin successful")
-//                    getGoogleDriveService(result)
-//                    listSomeFiles()
                 } else {
                     Timber.d("Signin request failed")
                 }
@@ -60,7 +54,7 @@ class SystemFilesActivity : AppCompatActivity(),
         requestAppPermissions()
         requestSignInToGoogleAccount()
 
-        setContentView(R.layout.activity_system_files)
+        setContentView(R.layout.activity_picker)
         setSupportActionBar(toolbar)
 
 //        fab.setOnClickListener { view ->
@@ -75,7 +69,7 @@ class SystemFilesActivity : AppCompatActivity(),
 
     }
 
-    private fun getDrivePath(directory: DriveFilesViewAdapter.DriveItem): String {
+    private fun getDrivePath(directory: DriveFilesAdapter.DriveItem): String {
         if (directory.parent == null) {
             return "/"
         }
@@ -87,7 +81,7 @@ class SystemFilesActivity : AppCompatActivity(),
         cancel()
     }
 
-    override fun onListFragmentInteraction(item: SystemFilesViewAdapter.FileItem?) {
+    override fun onListFragmentInteraction(item: SystemFilesAdapter.FileItem?) {
         Timber.d("Clicked ${item?.file?.absolutePath}")
         currentDirectory = item?.file!!
     }
@@ -128,7 +122,7 @@ class SystemFilesActivity : AppCompatActivity(),
         startActivityForResult(googleSignInClient.signInIntent, REQUEST_SIGN_IN)
     }
 
-    override fun onDriveListFragmentInteraction(item: DriveFilesViewAdapter.DriveItem?) {
+    override fun onDriveListFragmentInteraction(item: DriveFilesAdapter.DriveItem?) {
         Timber.d("Clicked ${item?.content}")
         if (item != null) {
             currentDriveDirectory = item

@@ -8,8 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.model.FileList
-import com.rafalk.syncfiles.DriveFilesViewAdapter.DriveItem
-import kotlinx.android.synthetic.main.fragment_system_file.view.*
+import com.rafalk.syncfiles.DriveFilesAdapter.DriveItem
+import kotlinx.android.synthetic.main.fragment_file.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
@@ -20,10 +20,10 @@ import timber.log.Timber
  * [RecyclerView.Adapter] that can display a [DriveItem] and makes a call to the
  * specified [OnDriveListFragmentInteractionListener].
  */
-class DriveFilesViewAdapter(
-    private val mListener: SystemFilesListFragment.OnDriveListFragmentInteractionListener?,
+class DriveFilesAdapter(
+    private val mListener: FilesListFragment.OnDriveListFragmentInteractionListener?,
     private val googleDriveService: Drive
-) : RecyclerView.Adapter<DriveFilesViewAdapter.ViewHolder>(), CoroutineScope by MainScope() {
+) : RecyclerView.Adapter<DriveFilesAdapter.ViewHolder>(), CoroutineScope by MainScope() {
 
     private val mOnClickListener: View.OnClickListener
     private var mValues: MutableList<DriveItem> = ArrayList()
@@ -88,7 +88,7 @@ class DriveFilesViewAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_system_file, parent, false)
+            .inflate(R.layout.fragment_file, parent, false)
         return ViewHolder(view)
     }
 

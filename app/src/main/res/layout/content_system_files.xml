@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/fragment"
-        android:name="com.rafalk.syncfiles.SystemFilesListFragment"
+        android:name="com.rafalk.syncfiles.FilesListFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"

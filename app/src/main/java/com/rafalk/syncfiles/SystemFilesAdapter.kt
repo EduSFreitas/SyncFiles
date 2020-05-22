@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.rafalk.syncfiles.SystemFilesListFragment.OnListFragmentInteractionListener
-import com.rafalk.syncfiles.SystemFilesViewAdapter.FileItem
-import kotlinx.android.synthetic.main.fragment_system_file.view.*
+import com.rafalk.syncfiles.FilesListFragment.OnListFragmentInteractionListener
+import com.rafalk.syncfiles.SystemFilesAdapter.FileItem
+import kotlinx.android.synthetic.main.fragment_file.view.*
 import timber.log.Timber
 import java.io.File
 
@@ -17,9 +17,9 @@ import java.io.File
  * [RecyclerView.Adapter] that can display a [FileItem] and makes a call to the
  * specified [OnListFragmentInteractionListener].
  */
-class SystemFilesViewAdapter(
+class SystemFilesAdapter(
     private val mListener: OnListFragmentInteractionListener?
-) : RecyclerView.Adapter<SystemFilesViewAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<SystemFilesAdapter.ViewHolder>() {
 
     private val mOnClickListener: View.OnClickListener
     private var mValues: MutableList<FileItem> = ArrayList()
@@ -68,7 +68,7 @@ class SystemFilesViewAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.fragment_system_file, parent, false)
+            .inflate(R.layout.fragment_file, parent, false)
         return ViewHolder(view)
     }
 

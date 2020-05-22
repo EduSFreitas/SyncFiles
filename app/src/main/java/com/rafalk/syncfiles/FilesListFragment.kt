@@ -26,9 +26,9 @@ import timber.log.Timber
 /**
  * A fragment representing a list of Items.
  * Activities containing this fragment MUST implement the
- * [SystemFilesListFragment.OnListFragmentInteractionListener] interface.
+ * [FilesListFragment.OnListFragmentInteractionListener] interface.
  */
-class SystemFilesListFragment : Fragment(), CoroutineScope by MainScope() {
+class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
 
     private lateinit var googleDriveService: Drive
 
@@ -50,19 +50,20 @@ class SystemFilesListFragment : Fragment(), CoroutineScope by MainScope() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_system_files_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_files_list, container, false)
         getGoogleDriveService()
 //        listSomeFiles()
 
         // Set the adapter
         if (view is RecyclerView) {
             with(view) {
-                adapter = DriveFilesViewAdapter(driveListener, googleDriveService)
+                adapter = DriveFilesAdapter(driveListener, googleDriveService)
                 layoutManager = LinearLayoutManager(context)
                 addItemDecoration(
                     DividerItemDecoration(view.getContext(),
                         DividerItemDecoration.VERTICAL
-                    ))
+                    )
+                )
             }
         }
         return view
@@ -100,7 +101,7 @@ class SystemFilesListFragment : Fragment(), CoroutineScope by MainScope() {
                     Timber.d("name=${file.name}, id=${file.id}")
                 }
             } catch (e: UserRecoverableAuthIOException) {
-                startActivityForResult(e.intent, SystemFilesActivity.REQUEST_SIGN_IN);
+                startActivityForResult(e.intent, PickerActivity.REQUEST_SIGN_IN);
             }
         }
     }
@@ -123,11 +124,11 @@ class SystemFilesListFragment : Fragment(), CoroutineScope by MainScope() {
 
 
     interface OnListFragmentInteractionListener {
-        fun onListFragmentInteraction(item: SystemFilesViewAdapter.FileItem?)
+        fun onListFragmentInteraction(item: SystemFilesAdapter.FileItem?)
     }
 
     interface OnDriveListFragmentInteractionListener {
-        fun onDriveListFragmentInteraction(item: DriveFilesViewAdapter.DriveItem?)
+        fun onDriveListFragmentInteraction(item: DriveFilesAdapter.DriveItem?)
     }
 
     companion object {
