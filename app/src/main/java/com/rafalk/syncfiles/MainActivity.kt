@@ -1,9 +1,11 @@
 package com.rafalk.syncfiles
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.widget.Button
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
@@ -34,6 +36,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     companion object {
         private const val REQUEST_SIGN_IN = 1
+        private const val GET_DIR_PATH = 2
     }
 
     override fun onDestroy() {
@@ -75,8 +78,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             requestSignInToGoogleAccount()
         }
 
-        val addFileButton: Button = findViewById(R.id.add_file_button)
-//        addFileButton.setOnClickListener { openFile() }
+        val addFileButton: Button = findViewById(R.id.add_remote_dir_button)
+        addFileButton.setOnClickListener { run {
+            val intent = Intent(this, PickerActivity::class.java)
+            startActivityForResult(intent, GET_DIR_PATH)
+        } }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -96,10 +102,18 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         when (requestCode) {
             REQUEST_SIGN_IN -> {
                 if (resultCode == RESULT_OK && result != null) {
-                    getGoogleDriveService(result)
-                    listSomeFiles()
+//                    getGoogleDriveService(result)
+//                    listSomeFiles()
+                    Timber.d("Signin successful")
                 } else {
                     Timber.d("Signin request failed")
+                }
+            }
+            GET_DIR_PATH -> {
+                if(resultCode == Activity.RESULT_OK && result != null){
+                    Timber.d("Received ${result.getStringExtra("path")}")
+                    val remoteDirText = findViewById<EditText>(R.id.remote_dir_text)
+                    remoteDirText.setText(result.getStringExtra("path"))
                 }
             }
         }

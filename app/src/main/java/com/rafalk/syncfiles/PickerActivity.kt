@@ -1,6 +1,7 @@
 package com.rafalk.syncfiles
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -10,11 +11,12 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
-import com.google.android.material.snackbar.Snackbar
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import kotlinx.android.synthetic.main.activity_picker.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import timber.log.Timber
 import java.io.File
 
@@ -57,14 +59,14 @@ class PickerActivity : AppCompatActivity(),
         setContentView(R.layout.activity_picker)
         setSupportActionBar(toolbar)
 
-//        fab.setOnClickListener { view ->
-//            Snackbar.make(view, currentDirectory.absolutePath, Snackbar.LENGTH_LONG)
-//                .setAction("Action", null).show()
-//        }
-
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, getDrivePath(currentDriveDirectory), Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
+        fab.setOnClickListener {
+            run {
+                val resultIntent = Intent()
+                Timber.d("Returning ${getDrivePath(currentDriveDirectory)}")
+                resultIntent.putExtra("path", getDrivePath(currentDriveDirectory))
+                setResult(Activity.RESULT_OK, resultIntent)
+                finish()
+            }
         }
 
     }
@@ -73,7 +75,7 @@ class PickerActivity : AppCompatActivity(),
         if (directory.parent == null) {
             return "/"
         }
-        return getDrivePath(directory.parent)  + directory.file.name + '/'
+        return getDrivePath(directory.parent) + directory.file.name + '/'
     }
 
     override fun onDestroy() {
