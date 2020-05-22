@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
-import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +27,6 @@ class PickerActivity : AppCompatActivity(),
 
     lateinit var currentDirectory: File
     lateinit var currentDriveDirectory: DriveFilesAdapter.DriveItem
-    private lateinit var googleDriveService: Drive
 
     companion object {
         const val REQUEST_SIGN_IN = 1
@@ -62,13 +60,21 @@ class PickerActivity : AppCompatActivity(),
         fab.setOnClickListener {
             run {
                 val resultIntent = Intent()
-                Timber.d("Returning ${getDrivePath(currentDriveDirectory)}")
-                resultIntent.putExtra("path", getDrivePath(currentDriveDirectory))
+                Timber.d("Returning ${getPath()}")
+                resultIntent.putExtra("path", getPath())
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             }
         }
 
+    }
+
+    private fun getPath(): String? {
+        when(intent.getStringExtra("PICKER_TYPE")){
+            "drive" -> return getDrivePath(currentDriveDirectory)
+            "local" -> return currentDirectory.absolutePath
+        }
+        return null
     }
 
     private fun getDrivePath(directory: DriveFilesAdapter.DriveItem): String {

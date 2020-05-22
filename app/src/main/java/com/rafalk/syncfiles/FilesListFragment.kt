@@ -12,14 +12,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 
@@ -32,18 +29,13 @@ class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
 
     private lateinit var googleDriveService: Drive
 
-    // TODO: Customize parameters
-    private var columnCount = 1
 
     private var listener: OnListFragmentInteractionListener? = null
     private var driveListener: OnDriveListFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        arguments?.let {
-            columnCount = it.getInt(ARG_COLUMN_COUNT)
-        }
+        Timber.plant(Timber.DebugTree())
     }
 
     override fun onCreateView(
@@ -52,12 +44,11 @@ class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_files_list, container, false)
         getGoogleDriveService()
-//        listSomeFiles()
 
         // Set the adapter
         if (view is RecyclerView) {
             with(view) {
-                adapter = DriveFilesAdapter(driveListener, googleDriveService)
+                adapter = getRequestedAdapter()
                 layoutManager = LinearLayoutManager(context)
                 addItemDecoration(
                     DividerItemDecoration(view.getContext(),
@@ -67,6 +58,18 @@ class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
             }
         }
         return view
+    }
+
+    private fun getRequestedAdapter(): RecyclerView.Adapter<*>? {
+        when(activity?.intent?.getStringExtra("PICKER_TYPE")){
+            "drive" -> {
+                return DriveFilesAdapter(driveListener, googleDriveService)
+            }
+            "local" -> {
+                return SystemFilesAdapter(listener)
+            }
+        }
+        return null
     }
 
     private fun getGoogleDriveService() {
@@ -84,26 +87,6 @@ class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
         )
             .setApplicationName(getString(R.string.app_name))
             .build()
-    }
-
-    private fun listSomeFiles() {
-        launch(Dispatchers.Default) {
-            try {
-                val result = googleDriveService
-                    .files().list()
-                    .setSpaces("drive")
-                    .setQ("'root' in parents")
-                    .setFields("nextPageToken, files(id, name)")
-                    .setPageToken(null)
-                    .execute()
-                Timber.d("Result received $result")
-                for (file in result.files) {
-                    Timber.d("name=${file.name}, id=${file.id}")
-                }
-            } catch (e: UserRecoverableAuthIOException) {
-                startActivityForResult(e.intent, PickerActivity.REQUEST_SIGN_IN);
-            }
-        }
     }
 
     override fun onAttach(context: Context) {
@@ -129,11 +112,5 @@ class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
 
     interface OnDriveListFragmentInteractionListener {
         fun onDriveListFragmentInteraction(item: DriveFilesAdapter.DriveItem?)
-    }
-
-    companion object {
-
-        const val ARG_COLUMN_COUNT = "column-count"
-
     }
 }

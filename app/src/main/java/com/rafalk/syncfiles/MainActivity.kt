@@ -20,23 +20,21 @@ import com.google.android.gms.common.api.Scope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.api.client.extensions.android.http.AndroidHttp
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
-import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
-    private lateinit var googleDriveService: Drive
     private lateinit var appBarConfiguration: AppBarConfiguration
 
     companion object {
         private const val REQUEST_SIGN_IN = 1
-        private const val GET_DIR_PATH = 2
+        private const val GET_DRIVE_DIR_PATH = 2
+        private const val GET_LOCAL_DIR_PATH = 3
     }
 
     override fun onDestroy() {
@@ -78,10 +76,18 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             requestSignInToGoogleAccount()
         }
 
-        val addFileButton: Button = findViewById(R.id.add_remote_dir_button)
-        addFileButton.setOnClickListener { run {
+        val addDriveDirButton: Button = findViewById(R.id.add_remote_dir_button)
+        addDriveDirButton.setOnClickListener { run {
             val intent = Intent(this, PickerActivity::class.java)
-            startActivityForResult(intent, GET_DIR_PATH)
+            intent.putExtra("PICKER_TYPE", "drive")
+            startActivityForResult(intent, GET_DRIVE_DIR_PATH)
+        } }
+
+        val addLocalDirButton = findViewById<Button>(R.id.add_local_dir_button)
+        addLocalDirButton.setOnClickListener { run{
+            val intent = Intent(this, PickerActivity::class.java)
+            intent.putExtra("PICKER_TYPE", "local")
+            startActivityForResult(intent, GET_LOCAL_DIR_PATH)
         } }
     }
 
@@ -102,60 +108,28 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         when (requestCode) {
             REQUEST_SIGN_IN -> {
                 if (resultCode == RESULT_OK && result != null) {
-//                    getGoogleDriveService(result)
-//                    listSomeFiles()
                     Timber.d("Signin successful")
                 } else {
                     Timber.d("Signin request failed")
                 }
             }
-            GET_DIR_PATH -> {
+            GET_DRIVE_DIR_PATH -> {
                 if(resultCode == Activity.RESULT_OK && result != null){
                     Timber.d("Received ${result.getStringExtra("path")}")
                     val remoteDirText = findViewById<EditText>(R.id.remote_dir_text)
                     remoteDirText.setText(result.getStringExtra("path"))
                 }
             }
+            GET_LOCAL_DIR_PATH -> {
+                if(resultCode == Activity.RESULT_OK && result != null){
+                    Timber.d("Received ${result.getStringExtra("path")}")
+                    val remoteDirText = findViewById<EditText>(R.id.local_dir_text)
+                    remoteDirText.setText(result.getStringExtra("path"))
+                }
+            }
         }
 
         super.onActivityResult(requestCode, resultCode, result)
-    }
-
-    private fun listSomeFiles() {
-        launch(Dispatchers.Default) {
-            try {
-                val result = googleDriveService
-                    .files().list()
-                    .setSpaces("drive")
-                    .setQ("'root' in parents")
-                    .setFields("nextPageToken, files(id, name)")
-                    .setPageToken(null)
-                    .execute()
-                Timber.d("Result received $result")
-                for (file in result.files) {
-                    Timber.d("name=${file.name}, id=${file.id}")
-                }
-            } catch (e: UserRecoverableAuthIOException) {
-                startActivityForResult(e.intent, REQUEST_SIGN_IN);
-            }
-        }
-    }
-
-    private fun getGoogleDriveService(intent: Intent) {
-        val googleAccount = GoogleSignIn.getSignedInAccountFromIntent(intent).result
-        Timber.d("Signin successful")
-        // Use the authenticated account to sign in to the Drive service.
-        val credential = GoogleAccountCredential.usingOAuth2(
-            this, listOf(DriveScopes.DRIVE_FILE)
-        )
-        credential.selectedAccount = googleAccount!!.account
-        googleDriveService = Drive.Builder(
-            AndroidHttp.newCompatibleTransport(),
-            JacksonFactory.getDefaultInstance(),
-            credential
-        )
-            .setApplicationName(getString(R.string.app_name))
-            .build()
     }
 
     private fun requestSignInToGoogleAccount() {
