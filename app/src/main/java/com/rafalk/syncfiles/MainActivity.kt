@@ -9,6 +9,8 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
@@ -25,12 +27,14 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import com.rafalk.syncfiles.ui.home.HomeViewModel
 import kotlinx.coroutines.*
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
+    private lateinit var model: MainViewModel
 
     companion object {
         private const val REQUEST_SIGN_IN = 1
@@ -49,6 +53,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         // setup logger
         Timber.plant(Timber.DebugTree());
+
+        // get model
+        model = ViewModelProviders.of(this).get(MainViewModel::class.java)
 
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
@@ -106,6 +113,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                 }.invokeOnCompletion { Timber.d("Finished syncing") }
             }
         }
+
+        val remoteDirText = findViewById<EditText>(R.id.remote_dir_text)
+        model.remoteDir.observe(this, Observer { remoteDirText.setText(it) })
+
+        val localDirText = findViewById<EditText>(R.id.local_dir_text)
+        model.localDir.observe(this, Observer { localDirText.setText(it) })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -132,16 +145,23 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
             }
             GET_DRIVE_DIR_PATH -> {
                 if (resultCode == Activity.RESULT_OK && result != null) {
-                    Timber.d("Received ${result.getStringExtra("path")}")
-                    val remoteDirText = findViewById<EditText>(R.id.remote_dir_text)
-                    remoteDirText.setText(result.getStringExtra("path"))
+                    val path = result.getStringExtra("path")
+                    val id = result.getStringExtra("id")
+
+                    model.remoteDir.apply { value = path }
+                    model.remoteDirId.apply { value = id }
+
+                    Timber.d("Received $path")
+                    Timber.d("and id $id")
                 }
             }
             GET_LOCAL_DIR_PATH -> {
                 if (resultCode == Activity.RESULT_OK && result != null) {
-                    Timber.d("Received ${result.getStringExtra("path")}")
-                    val remoteDirText = findViewById<EditText>(R.id.local_dir_text)
-                    remoteDirText.setText(result.getStringExtra("path"))
+                    val path = result.getStringExtra("path")
+
+                    model.localDir.apply { value = path }
+
+                    Timber.d("Received $path")
                 }
             }
         }

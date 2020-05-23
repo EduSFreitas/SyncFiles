@@ -62,6 +62,9 @@ class PickerActivity : AppCompatActivity(),
                 val resultIntent = Intent()
                 Timber.d("Returning ${getPath()}")
                 resultIntent.putExtra("path", getPath())
+                if(intent.getStringExtra("PICKER_TYPE") == "drive"){
+                    resultIntent.putExtra("id", currentDriveDirectory.file.id)
+                }
                 setResult(Activity.RESULT_OK, resultIntent)
                 finish()
             }
