@@ -16,6 +16,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.room.Room
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
@@ -27,7 +28,8 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import com.rafalk.syncfiles.ui.home.HomeViewModel
+import com.rafalk.syncfiles.database.AppDatabase
+import com.rafalk.syncfiles.database.DirsPair
 import kotlinx.coroutines.*
 import timber.log.Timber
 
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var model: MainViewModel
+    private lateinit var db: AppDatabase
 
     companion object {
         private const val REQUEST_SIGN_IN = 1
@@ -56,6 +59,13 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         // get model
         model = ViewModelProviders.of(this).get(MainViewModel::class.java)
+
+        // setup database
+        db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database-name")
+            .build()
+
+        // google sign in
+        requestSignInToGoogleAccount()
 
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
@@ -87,9 +97,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         val addDriveDirButton: Button = findViewById(R.id.add_remote_dir_button)
         addDriveDirButton.setOnClickListener {
-                val intent = Intent(this, PickerActivity::class.java)
-                intent.putExtra("PICKER_TYPE", "drive")
-                startActivityForResult(intent, GET_DRIVE_DIR_PATH)
+            val intent = Intent(this, PickerActivity::class.java)
+            intent.putExtra("PICKER_TYPE", "drive")
+            startActivityForResult(intent, GET_DRIVE_DIR_PATH)
         }
 
         val addLocalDirButton = findViewById<Button>(R.id.add_local_dir_button)
@@ -108,6 +118,26 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
                     SyncDirs(driveDirId, localDir, getGoogleDriveService())
                 }
             }.invokeOnCompletion { Timber.d("Finished syncing") }
+        }
+
+        val addDirsPairButton = findViewById<Button>(R.id.add_pair)
+        addDirsPairButton.setOnClickListener {
+            launch(Dispatchers.Default) {
+                if (model.localDir.value != null && model.remoteDir.value != null && model.remoteDirId.value != null) {
+                    if (db.dirsPairDao()
+                            .count(model.localDir.value!!, model.remoteDirId.value!!) == 0
+                    ) {
+                        db.dirsPairDao().insertAll(
+                            DirsPair(
+                                model.localDir.value!!,
+                                model.remoteDir.value!!,
+                                model.remoteDirId.value!!
+                            )
+                        )
+                    }
+                }
+                Timber.d(db.dirsPairDao().getAll().toString())
+            }
         }
 
         val remoteDirText = findViewById<EditText>(R.id.remote_dir_text)
@@ -166,13 +196,15 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
     }
 
     private fun requestSignInToGoogleAccount() {
-        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestScopes(Scope(DriveScopes.DRIVE))
-            .requestEmail()
-            .build()
-        val googleSignInClient = GoogleSignIn.getClient(this, signInOptions)
-        Timber.d("Client received")
-        startActivityForResult(googleSignInClient.signInIntent, REQUEST_SIGN_IN)
+        if (GoogleSignIn.getLastSignedInAccount(this) == null) {
+            val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestScopes(Scope(DriveScopes.DRIVE))
+                .requestEmail()
+                .build()
+            val googleSignInClient = GoogleSignIn.getClient(this, signInOptions)
+            Timber.d("Client received")
+            startActivityForResult(googleSignInClient.signInIntent, REQUEST_SIGN_IN)
+        }
     }
 
     private fun getGoogleDriveService(): Drive {

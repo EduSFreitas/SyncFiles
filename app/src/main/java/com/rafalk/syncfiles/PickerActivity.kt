@@ -8,10 +8,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.Scope
-import com.google.api.services.drive.DriveScopes
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -53,9 +49,6 @@ class PickerActivity : AppCompatActivity(),
         Timber.plant(Timber.DebugTree())
 
         requestAppPermissions()
-        if(savedInstanceState==null && intent.getStringExtra("PICKER_TYPE") == "drive"){
-            requestSignInToGoogleAccount()
-        }
 
         setContentView(R.layout.activity_picker)
         setSupportActionBar(toolbar)
@@ -122,16 +115,6 @@ class PickerActivity : AppCompatActivity(),
             baseContext,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun requestSignInToGoogleAccount() {
-        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestScopes(Scope(DriveScopes.DRIVE))
-            .requestEmail()
-            .build()
-        val googleSignInClient = GoogleSignIn.getClient(this, signInOptions)
-        Timber.d("Client received")
-        startActivityForResult(googleSignInClient.signInIntent, REQUEST_SIGN_IN)
     }
 
     override fun onDriveListFragmentInteraction(item: DriveFilesAdapter.DriveItem?) {
