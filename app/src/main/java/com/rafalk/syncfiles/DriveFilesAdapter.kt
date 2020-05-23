@@ -52,7 +52,7 @@ class DriveFilesAdapter(
             val result = googleDriveService
                 .files().list()
                 .setSpaces("drive")
-                .setQ("'${item.file.id}' in parents")
+                .setQ("'${item.file.id}' in parents and trashed=false")
                 .setFields("nextPageToken, files(id, name, mimeType)")
                 .setPageToken(null)
                 .execute()

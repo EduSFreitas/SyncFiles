@@ -87,31 +87,27 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
 
         val addDriveDirButton: Button = findViewById(R.id.add_remote_dir_button)
         addDriveDirButton.setOnClickListener {
-            run {
                 val intent = Intent(this, PickerActivity::class.java)
                 intent.putExtra("PICKER_TYPE", "drive")
                 startActivityForResult(intent, GET_DRIVE_DIR_PATH)
-            }
         }
 
         val addLocalDirButton = findViewById<Button>(R.id.add_local_dir_button)
         addLocalDirButton.setOnClickListener {
-            run {
-                val intent = Intent(this, PickerActivity::class.java)
-                intent.putExtra("PICKER_TYPE", "local")
-                startActivityForResult(intent, GET_LOCAL_DIR_PATH)
-            }
+            val intent = Intent(this, PickerActivity::class.java)
+            intent.putExtra("PICKER_TYPE", "local")
+            startActivityForResult(intent, GET_LOCAL_DIR_PATH)
         }
 
         val syncButton = findViewById<Button>(R.id.sync_button)
         syncButton.setOnClickListener {
-            run {
-                val driveDirId = "1UIvISGnOktQN9dTmq5-ab-JfKBGvO4sl"
-                val localDir = "/storage/emulated/0/Download/test"
-                launch(Dispatchers.Default) {
+            val driveDirId = model.remoteDirId.value
+            val localDir = model.localDir.value
+            launch(Dispatchers.Default) {
+                if (driveDirId != null && localDir != null) {
                     SyncDirs(driveDirId, localDir, getGoogleDriveService())
-                }.invokeOnCompletion { Timber.d("Finished syncing") }
-            }
+                }
+            }.invokeOnCompletion { Timber.d("Finished syncing") }
         }
 
         val remoteDirText = findViewById<EditText>(R.id.remote_dir_text)

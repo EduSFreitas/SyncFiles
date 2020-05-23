@@ -34,6 +34,8 @@ class PickerActivity : AppCompatActivity(),
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
+        super.onActivityResult(requestCode, resultCode, result)
+
         Timber.d("onActivityResult=$requestCode")
         when (requestCode) {
             REQUEST_SIGN_IN -> {
@@ -44,36 +46,35 @@ class PickerActivity : AppCompatActivity(),
                 }
             }
         }
-
-        super.onActivityResult(requestCode, resultCode, result)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.plant(Timber.DebugTree())
+
         requestAppPermissions()
-        requestSignInToGoogleAccount()
+        if(savedInstanceState==null && intent.getStringExtra("PICKER_TYPE") == "drive"){
+            requestSignInToGoogleAccount()
+        }
 
         setContentView(R.layout.activity_picker)
         setSupportActionBar(toolbar)
 
         fab.setOnClickListener {
-            run {
-                val resultIntent = Intent()
-                Timber.d("Returning ${getPath()}")
-                resultIntent.putExtra("path", getPath())
-                if(intent.getStringExtra("PICKER_TYPE") == "drive"){
-                    resultIntent.putExtra("id", currentDriveDirectory.file.id)
-                }
-                setResult(Activity.RESULT_OK, resultIntent)
-                finish()
+            val resultIntent = Intent()
+            Timber.d("Returning ${getPath()}")
+            resultIntent.putExtra("path", getPath())
+            if (intent.getStringExtra("PICKER_TYPE") == "drive") {
+                resultIntent.putExtra("id", currentDriveDirectory.file.id)
             }
+            setResult(Activity.RESULT_OK, resultIntent)
+            finish()
         }
 
     }
 
     private fun getPath(): String? {
-        when(intent.getStringExtra("PICKER_TYPE")){
+        when (intent.getStringExtra("PICKER_TYPE")) {
             "drive" -> return getDrivePath(currentDriveDirectory)
             "local" -> return currentDirectory.absolutePath
         }

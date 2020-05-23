@@ -7,17 +7,18 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/app_bar_main">
 
+
     <fragment
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:defaultNavHost="true"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:navGraph="@navigation/mobile_navigation" />
-
 
     <Button
         android:id="@+id/add_account_button"
@@ -81,10 +82,19 @@
         android:id="@+id/sync_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="38dp"
-        android:layout_marginEnd="12dp"
+        android:layout_marginTop="27dp"
+        android:layout_marginEnd="13dp"
         android:text="Sync"
         app:layout_constraintEnd_toStartOf="@+id/add_local_dir_button"
         app:layout_constraintTop_toBottomOf="@+id/add_local_dir_button" />
+
+    <Button
+        android:id="@+id/add_pair"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Add pair"
+        app:layout_constraintBaseline_toBaselineOf="@+id/sync_button"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
