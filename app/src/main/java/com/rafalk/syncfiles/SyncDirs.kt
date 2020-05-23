@@ -4,10 +4,6 @@ import android.webkit.MimeTypeMap
 import com.google.api.client.http.FileContent
 import com.google.api.client.util.DateTime
 import com.google.api.services.drive.Drive
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -16,8 +12,7 @@ class SyncDirs(
     private val driveDirId: String,
     private val localDir: String,
     private val googleDriveService: Drive
-) :
-    CoroutineScope by MainScope() {
+) {
 
     private var mapOfLocalFiles: Map<String, File>
 
@@ -32,7 +27,7 @@ class SyncDirs(
         getMapOfDriveDirs()
     }
 
-    private fun getMapOfDriveDirs() = launch(Dispatchers.Default) {
+    private fun getMapOfDriveDirs() {
         val driveDirs = googleDriveService
             .files().list()
             .setSpaces("drive")
@@ -82,7 +77,7 @@ class SyncDirs(
         return localDirs.map { it.name to it }.toMap()
     }
 
-    fun getMapOfDriveFiles() = launch(Dispatchers.Default) {
+    fun getMapOfDriveFiles() {
         val driveFiles = googleDriveService
             .files().list()
             .setSpaces("drive")
@@ -92,10 +87,10 @@ class SyncDirs(
             .execute()
         Timber.d("Result received $driveFiles")
 
-        showDifference(driveFiles.files.map { it.name to it }.toMap())
+        syncFilesDiff(driveFiles.files.map { it.name to it }.toMap())
     }
 
-    private fun showDifference(mapOfDriveFiles: Map<String, com.google.api.services.drive.model.File>) {
+    private fun syncFilesDiff(mapOfDriveFiles: Map<String, com.google.api.services.drive.model.File>) {
         val common = HashSet<String>()
         for (entry in mapOfDriveFiles) {
             if (!mapOfLocalFiles.containsKey(entry.key)) {
@@ -141,10 +136,8 @@ class SyncDirs(
             file
         )
         driveFile.modifiedTime = DateTime(file.lastModified())
-        launch(Dispatchers.Default) {
-            googleDriveService.files().update(id, driveFile, driveContent).execute()
-            Timber.d("${file.name} updated")
-        }
+        googleDriveService.files().update(id, driveFile, driveContent).execute()
+        Timber.d("${file.name} updated")
     }
 
     private fun uploadFile(name: String, file: File) {
@@ -156,24 +149,21 @@ class SyncDirs(
         driveFile.name = name
         driveFile.parents = mutableListOf(driveDirId)
         driveFile.modifiedTime = DateTime(file.lastModified())
-        launch(Dispatchers.Default) {
-            googleDriveService.files().create(driveFile, driveContent).execute()
-            Timber.d("${file.name} uploaded")
-        }
+        googleDriveService.files().create(driveFile, driveContent).execute()
+        Timber.d("${file.name} uploaded")
     }
 
-    private fun downloadFile(name: String, file: com.google.api.services.drive.model.File) =
-        launch(Dispatchers.Default) {
-            val localFile = File(localDir + '/' + name)
-            val localOutputStream = FileOutputStream(localFile)
-            googleDriveService.files().get(file.id)
-                .executeMediaAndDownloadTo(localOutputStream)
-            localOutputStream.flush()
-            localOutputStream.close()
-            localFile.setLastModified(file.modifiedTime.value)
+    private fun downloadFile(name: String, file: com.google.api.services.drive.model.File) {
+        val localFile = File(localDir + '/' + name)
+        val localOutputStream = FileOutputStream(localFile)
+        googleDriveService.files().get(file.id)
+            .executeMediaAndDownloadTo(localOutputStream)
+        localOutputStream.flush()
+        localOutputStream.close()
+        localFile.setLastModified(file.modifiedTime.value)
 
-            Timber.d("${localFile.absolutePath} saved to local storage ${DateTime(localFile.lastModified())}")
-        }
+        Timber.d("${localFile.absolutePath} saved to local storage ${DateTime(localFile.lastModified())}")
+    }
 
     private fun getMapOfLocalFiles(): Map<String, File> {
         val local = File(localDir)
