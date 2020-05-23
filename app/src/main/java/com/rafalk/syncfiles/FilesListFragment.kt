@@ -36,6 +36,7 @@ class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.plant(Timber.DebugTree())
+        getGoogleDriveService()
     }
 
     override fun onCreateView(
@@ -43,7 +44,6 @@ class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_files_list, container, false)
-        getGoogleDriveService()
 
         // Set the adapter
         if (view is RecyclerView) {

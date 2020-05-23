@@ -7,30 +7,6 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/app_bar_main">
 
-
-    <fragment
-        android:id="@+id/nav_host_fragment"
-        android:name="androidx.navigation.fragment.NavHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:defaultNavHost="true"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navGraph="@navigation/mobile_navigation" />
-
-    <Button
-        android:id="@+id/add_account_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="@string/add_account"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <EditText
         android:id="@+id/remote_dir_text"
         android:layout_width="wrap_content"
@@ -38,12 +14,13 @@
         android:layout_marginStart="16dp"
         android:ems="10"
         android:enabled="false"
+        android:focusable="false"
         android:importantForAutofill="no"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.145" />
+        app:layout_constraintVertical_bias="0.061" />
 
     <Button
         android:id="@+id/add_remote_dir_button"
@@ -58,15 +35,16 @@
         android:id="@+id/local_dir_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="20dp"
         android:ems="10"
         android:enabled="false"
+        android:focusable="false"
         android:importantForAutofill="no"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.29" />
+        app:layout_constraintVertical_bias="0.201" />
 
     <Button
         android:id="@+id/add_local_dir_button"
@@ -96,5 +74,26 @@
         android:text="Add pair"
         app:layout_constraintBaseline_toBaselineOf="@+id/sync_button"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <fragment
+        android:id="@+id/fragment2"
+        android:name="com.rafalk.syncfiles.PairsListFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="25dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/add_pair" />
+    <!--    <fragment-->
+    <!--        android:id="@+id/nav_host_fragment"-->
+    <!--        android:name="androidx.navigation.fragment.NavHostFragment"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        app:defaultNavHost="true"-->
+    <!--        app:layout_constraintHorizontal_bias="0.0"-->
+    <!--        app:layout_constraintLeft_toLeftOf="parent"-->
+    <!--        app:layout_constraintRight_toRightOf="parent"-->
+    <!--        app:layout_constraintTop_toTopOf="parent"-->
+    <!--        app:navGraph="@navigation/mobile_navigation" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

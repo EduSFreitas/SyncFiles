@@ -30,10 +30,12 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.rafalk.syncfiles.database.AppDatabase
 import com.rafalk.syncfiles.database.DirsPair
+import com.rafalk.syncfiles.dummy.DummyContent
 import kotlinx.coroutines.*
 import timber.log.Timber
 
-class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
+class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
+    PairsListFragment.OnListFragmentInteractionListener {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var model: MainViewModel
@@ -68,32 +70,21 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         requestSignInToGoogleAccount()
 
         setContentView(R.layout.activity_main)
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+//        val toolbar: Toolbar = findViewById(R.id.toolbar)
+//        setSupportActionBar(toolbar)
 
-        val fab: FloatingActionButton = findViewById(R.id.fab)
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        val navView: NavigationView = findViewById(R.id.nav_view)
-        val navController = findNavController(R.id.nav_host_fragment)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
-            ), drawerLayout
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
-
-        val addAccountButton: Button = findViewById(R.id.add_account_button)
-        addAccountButton.setOnClickListener { view ->
-            Snackbar.make(view, "Elo", Snackbar.LENGTH_SHORT).show()
-            requestSignInToGoogleAccount()
-        }
+//        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
+//        val navView: NavigationView = findViewById(R.id.nav_view)
+//        val navController = findNavController(R.id.nav_host_fragment)
+//        // Passing each menu ID as a set of Ids because each
+//        // menu should be considered as top level destinations.
+//        appBarConfiguration = AppBarConfiguration(
+//            setOf(
+//                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
+//            ), drawerLayout
+//        )
+//        setupActionBarWithNavController(navController, appBarConfiguration)
+//        navView.setupWithNavController(navController)
 
         val addDriveDirButton: Button = findViewById(R.id.add_remote_dir_button)
         addDriveDirButton.setOnClickListener {
@@ -153,10 +144,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         return true
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
+//    override fun onSupportNavigateUp(): Boolean {
+//        val navController = findNavController(R.id.nav_host_fragment)
+//        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+//    }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
@@ -222,5 +213,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope() {
         )
             .setApplicationName(getString(R.string.app_name))
             .build()
+    }
+
+    override fun onListFragmentInteraction(item: DummyContent.DummyItem?) {
+
+
     }
 }
