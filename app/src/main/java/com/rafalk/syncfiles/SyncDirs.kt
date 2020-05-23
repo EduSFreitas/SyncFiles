@@ -20,15 +20,69 @@ class SyncDirs(
     CoroutineScope by MainScope() {
 
     private var mapOfLocalFiles: Map<String, File>
-    private lateinit var mapOfDriveFiles: Map<String, com.google.api.services.drive.model.File>
+
+    private var mapOfLocalDirs: Map<String, File>
 
     init {
         Timber.d("Directories to sync $driveDirId and $localDir")
-        mapOfLocalFiles = getMapOfLocalFiles(localDir)
-        getMapOfDriveFiles(driveDirId)
+        mapOfLocalFiles = getMapOfLocalFiles()
+        getMapOfDriveFiles()
+
+        mapOfLocalDirs = getMapOfLocalDirs()
+        getMapOfDriveDirs()
     }
 
-    fun getMapOfDriveFiles(driveDirId: String) = launch(Dispatchers.Default) {
+    private fun getMapOfDriveDirs() = launch(Dispatchers.Default) {
+        val driveDirs = googleDriveService
+            .files().list()
+            .setSpaces("drive")
+            .setQ("'${driveDirId}' in parents and trashed=false and mimeType = 'application/vnd.google-apps.folder'")
+            .setFields("nextPageToken, files(id, name)")
+            .setPageToken(null)
+            .execute()
+        Timber.d("Result received $driveDirs")
+
+        syncDirsTree(driveDirs.files.map { it.name to it }.toMap())
+    }
+
+    private fun syncDirsTree(mapOfDriveDirs: Map<String, com.google.api.services.drive.model.File>) {
+        //create remote dirs
+        for (entry in mapOfLocalDirs) {
+            if (!mapOfDriveDirs.containsKey(entry.key)) {
+                val dirMetadata = com.google.api.services.drive.model.File()
+                dirMetadata.name = entry.key
+                dirMetadata.mimeType = "application/vnd.google-apps.folder"
+                dirMetadata.parents = mutableListOf(driveDirId)
+                val dir: com.google.api.services.drive.model.File =
+                    googleDriveService.files().create(dirMetadata)
+                        .setFields("id")
+                        .execute()
+                Timber.d("Created remote dir ${entry.key}")
+                SyncDirs(dir.id, localDir + '/' + entry.key, googleDriveService)
+            }
+        }
+
+        //create local dirs
+        for (entry in mapOfDriveDirs) {
+            if (!mapOfLocalDirs.containsKey(entry.key)) {
+                val newLocalDir = File(localDir + '/' + entry.key)
+                newLocalDir.mkdir()
+                Timber.d("Created local dir ${newLocalDir.absolutePath}")
+                SyncDirs(entry.value.id, newLocalDir.absolutePath, googleDriveService)
+            }
+        }
+    }
+
+    private fun getMapOfLocalDirs(): Map<String, File> {
+        val local = File(localDir)
+        val localDirs = local.listFiles { file ->
+            file.isDirectory
+        }
+        Timber.d("Dirs in ${local.absolutePath}: ${localDirs.contentToString()}")
+        return localDirs.map { it.name to it }.toMap()
+    }
+
+    fun getMapOfDriveFiles() = launch(Dispatchers.Default) {
         val driveFiles = googleDriveService
             .files().list()
             .setSpaces("drive")
@@ -38,13 +92,10 @@ class SyncDirs(
             .execute()
         Timber.d("Result received $driveFiles")
 
-        launch(Dispatchers.Main) {
-            mapOfDriveFiles = driveFiles.files.map { it.name to it }.toMap()
-            showDifference()
-        }
+        showDifference(driveFiles.files.map { it.name to it }.toMap())
     }
 
-    private fun showDifference() {
+    private fun showDifference(mapOfDriveFiles: Map<String, com.google.api.services.drive.model.File>) {
         val common = HashSet<String>()
         for (entry in mapOfDriveFiles) {
             if (!mapOfLocalFiles.containsKey(entry.key)) {
@@ -124,7 +175,7 @@ class SyncDirs(
             Timber.d("${localFile.absolutePath} saved to local storage ${DateTime(localFile.lastModified())}")
         }
 
-    private fun getMapOfLocalFiles(localDir: String): Map<String, File> {
+    private fun getMapOfLocalFiles(): Map<String, File> {
         val local = File(localDir)
         val localFiles = local.listFiles { file ->
             file.isFile
