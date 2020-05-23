@@ -17,7 +17,6 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
-import timber.log.Timber
 
 
 /**
@@ -35,7 +34,6 @@ class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Timber.plant(Timber.DebugTree())
         getGoogleDriveService()
     }
 

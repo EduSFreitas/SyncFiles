@@ -7,22 +7,13 @@ import android.view.Menu
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
 import androidx.room.Room
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.navigation.NavigationView
-import com.google.android.material.snackbar.Snackbar
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.json.jackson2.JacksonFactory
@@ -151,6 +142,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
+        super.onActivityResult(requestCode, resultCode, result)
         Timber.d("onActivityResult=$requestCode")
         when (requestCode) {
             REQUEST_SIGN_IN -> {
@@ -182,8 +174,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
                 }
             }
         }
-
-        super.onActivityResult(requestCode, resultCode, result)
     }
 
     private fun requestSignInToGoogleAccount() {

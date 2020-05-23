@@ -46,7 +46,6 @@ class PickerActivity : AppCompatActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Timber.plant(Timber.DebugTree())
 
         requestAppPermissions()
 
@@ -84,6 +83,8 @@ class PickerActivity : AppCompatActivity(),
     override fun onDestroy() {
         super.onDestroy()
         cancel()
+        setResult(Activity.RESULT_CANCELED, Intent())
+        finish()
     }
 
     override fun onListFragmentInteraction(item: SystemFilesAdapter.FileItem?) {
