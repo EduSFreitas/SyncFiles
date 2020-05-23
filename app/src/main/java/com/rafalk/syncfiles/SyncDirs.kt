@@ -54,6 +54,12 @@ class SyncDirs(
                         .execute()
                 Timber.d("Created remote dir ${entry.key}")
                 SyncDirs(dir.id, localDir + '/' + entry.key, googleDriveService)
+            } else {
+                SyncDirs(
+                    mapOfDriveDirs.getValue(entry.key).id,
+                    localDir + '/' + entry.key,
+                    googleDriveService
+                )
             }
         }
 
