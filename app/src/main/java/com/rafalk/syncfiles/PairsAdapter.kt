@@ -8,6 +8,7 @@ import android.widget.TextView
 
 
 import com.rafalk.syncfiles.PairsListFragment.OnListFragmentInteractionListener
+import com.rafalk.syncfiles.database.DirsPair
 import com.rafalk.syncfiles.dummy.DummyContent.DummyItem
 
 import kotlinx.android.synthetic.main.fragment_pair.view.*
@@ -17,16 +18,16 @@ import kotlinx.android.synthetic.main.fragment_pair.view.*
  * specified [OnListFragmentInteractionListener].
  * TODO: Replace the implementation with code for your data type.
  */
-class MyPairRecyclerViewAdapter(
-    private val mValues: List<DummyItem>,
+class PairsAdapter(
     private val mListener: OnListFragmentInteractionListener?
-) : RecyclerView.Adapter<MyPairRecyclerViewAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<PairsAdapter.ViewHolder>() {
 
     private val mOnClickListener: View.OnClickListener
+    private var mValues: List<DirsPair> = ArrayList()
 
     init {
         mOnClickListener = View.OnClickListener { v ->
-            val item = v.tag as DummyItem
+            val item = v.tag as DirsPair
             // Notify the active callbacks interface (the activity, if the fragment is attached to
             // one) that an item has been selected.
             mListener?.onListFragmentInteraction(item)
@@ -41,8 +42,8 @@ class MyPairRecyclerViewAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = mValues[position]
-        holder.mRemoteDirView.text = item.content
-        holder.mLocalDirView.text = item.content
+        holder.mRemoteDirView.text = item.remoteDir
+        holder.mLocalDirView.text = item.localDir
 
         with(holder.mView) {
             tag = item
@@ -59,5 +60,10 @@ class MyPairRecyclerViewAdapter(
         override fun toString(): String {
             return super.toString() + " '" + mRemoteDirView.text + "'" + mLocalDirView.text
         }
+    }
+
+    fun setData(data: List<DirsPair>){
+        mValues = data
+        notifyDataSetChanged()
     }
 }

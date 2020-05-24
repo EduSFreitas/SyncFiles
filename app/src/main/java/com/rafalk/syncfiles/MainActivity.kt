@@ -50,12 +50,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
         // setup logger
         Timber.plant(Timber.DebugTree());
 
+        // setup database
+        db = AppDatabase.getDatabase(this)
+
         // get model
         model = ViewModelProviders.of(this).get(MainViewModel::class.java)
 
-        // setup database
-        db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database-name")
-            .build()
 
         // google sign in
         requestSignInToGoogleAccount()
@@ -118,7 +118,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
                         )
                     }
                 }
-                Timber.d(db.dirsPairDao().getAll().toString())
             }
         }
 
@@ -205,7 +204,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
             .build()
     }
 
-    override fun onListFragmentInteraction(item: DummyContent.DummyItem?) {
+    override fun onListFragmentInteraction(item: DirsPair?) {
 
 
     }
