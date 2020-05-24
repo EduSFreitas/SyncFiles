@@ -10,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.room.Room
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
@@ -21,7 +20,6 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.rafalk.syncfiles.database.AppDatabase
 import com.rafalk.syncfiles.database.DirsPair
-import com.rafalk.syncfiles.dummy.DummyContent
 import kotlinx.coroutines.*
 import timber.log.Timber
 
@@ -93,11 +91,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
 
         val syncButton = findViewById<Button>(R.id.sync_button)
         syncButton.setOnClickListener {
-            val driveDirId = model.remoteDirId.value
-            val localDir = model.localDir.value
             launch(Dispatchers.Default) {
-                if (driveDirId != null && localDir != null) {
-                    SyncDirs(driveDirId, localDir, getGoogleDriveService())
+                val dirs =  db.dirsPairDao().getAll()
+                for (pair in dirs) {
+                    SyncDirs(pair.remoteDirId, pair.localDir, getGoogleDriveService())
                 }
             }.invokeOnCompletion { Timber.d("Finished syncing") }
         }

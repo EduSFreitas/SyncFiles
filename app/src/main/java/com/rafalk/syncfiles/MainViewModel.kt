@@ -16,6 +16,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         val dao = AppDatabase.getDatabase(application).dirsPairDao()
-        allPairs = dao.getAll()
+        allPairs = dao.getAllLive()
     }
 }

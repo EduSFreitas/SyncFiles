@@ -117,15 +117,15 @@ class SyncDirs(
         }
 
         for (name in common) {
-            val localLastModified = mapOfLocalFiles.getValue(name).lastModified()
-            val remoteLastModified = mapOfDriveFiles.getValue(name).modifiedTime.value
+            val localLastModified = mapOfLocalFiles.getValue(name).lastModified() / 1000
+            val remoteLastModified = mapOfDriveFiles.getValue(name).modifiedTime.value / 1000
             when {
                 localLastModified > remoteLastModified -> {
                     Timber.d("Local file ${name} is newer")
                     updateFile(mapOfLocalFiles.getValue(name), mapOfDriveFiles.getValue(name).id)
                 }
                 localLastModified < remoteLastModified -> {
-                    Timber.d("Drive file ${name} is newer")
+                    Timber.d("Drive file ${name} is newer local:$localLastModified remote:$remoteLastModified")
                     downloadFile(name, mapOfDriveFiles.getValue(name))
                 }
                 else -> {
@@ -168,7 +168,7 @@ class SyncDirs(
         localOutputStream.close()
         localFile.setLastModified(file.modifiedTime.value)
 
-        Timber.d("${localFile.absolutePath} saved to local storage ${DateTime(localFile.lastModified())}")
+        Timber.d("${localFile.absolutePath} saved to local storage ${localFile.lastModified()} remote:${file.modifiedTime.value}")
     }
 
     private fun getMapOfLocalFiles(): Map<String, File> {

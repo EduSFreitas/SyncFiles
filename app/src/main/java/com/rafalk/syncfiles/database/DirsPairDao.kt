@@ -9,7 +9,10 @@ import androidx.room.Query
 @Dao
 interface DirsPairDao {
     @Query("SELECT * FROM dirspair")
-    fun getAll(): LiveData<List<DirsPair>>
+    fun getAllLive(): LiveData<List<DirsPair>>
+
+    @Query("SELECT * FROM dirspair")
+    fun getAll(): List<DirsPair>
 
     @Query("SELECT COUNT(*) from dirspair where local_dir=:localDir and remote_dir_id=:remoteDirId")
     fun count(localDir: String, remoteDirId: String): Int
