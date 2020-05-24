@@ -115,6 +115,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
                         )
                     }
                 }
+            }.invokeOnCompletion {
+                model.localDir.postValue(null)
+                model.remoteDir.postValue(null)
+                model.remoteDirId.postValue(null)
             }
         }
 
