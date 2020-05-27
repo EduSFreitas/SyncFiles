@@ -41,13 +41,19 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
         val root = inflater.inflate(R.layout.fragment_synced, container, false)
 
         val syncButton = root.findViewById<Button>(R.id.sync_button)
-        syncButton.setOnClickListener {
+        syncButton.setOnClickListener { view ->
+            view.isEnabled = false
             launch(Dispatchers.Default) {
                 val dirs = db.dirsPairDao().getAll()
                 for (pair in dirs) {
                     SyncDirs(pair.remoteDirId, pair.localDir, getGoogleDriveService())
                 }
-            }.invokeOnCompletion { Timber.d("Finished syncing") }
+            }.invokeOnCompletion {
+                Timber.d("Finished syncing")
+                launch(Dispatchers.Main) {
+                    view.isEnabled = true
+                }
+            }
         }
 
         return root
