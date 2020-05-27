@@ -1,11 +1,18 @@
 package com.rafalk.syncfiles.ui.synced
 
+import android.app.NotificationChannel.DEFAULT_CHANNEL_ID
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -22,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
+
 
 class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
 
@@ -52,6 +60,7 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
                 Timber.d("Finished syncing")
                 launch(Dispatchers.Main) {
                     view.isEnabled = true
+                    showNotification()
                 }
             }
         }
@@ -79,5 +88,23 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
         )
             .setApplicationName(getString(R.string.app_name))
             .build()
+    }
+
+    private fun showNotification() {
+        Timber.d("Attempting to show notification")
+        val alarmSound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val mBuilder: NotificationCompat.Builder = NotificationCompat.Builder(
+            mContext,
+            DEFAULT_CHANNEL_ID
+        )
+            .setSmallIcon(R.drawable.icon_sync)
+            .setContentTitle("SyncFiles")
+            .setContentText("Successfully synced directories.")
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .setSound(alarmSound)
+        val notificationManager =
+            NotificationManagerCompat.from(mContext)
+        notificationManager.notify(0, mBuilder.build())
     }
 }

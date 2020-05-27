@@ -25,6 +25,7 @@ import com.google.api.services.drive.DriveScopes
 import com.rafalk.syncfiles.database.AppDatabase
 import com.rafalk.syncfiles.database.DirsPair
 import com.rafalk.syncfiles.ui.synced.PairsListFragment
+import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.coroutines.*
 import timber.log.Timber
 
@@ -67,7 +68,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
 
         setContentView(R.layout.activity_main)
 
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
