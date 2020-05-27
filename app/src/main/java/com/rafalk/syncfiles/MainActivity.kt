@@ -24,6 +24,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import com.rafalk.syncfiles.autosync.AutoSyncReceiver
 import com.rafalk.syncfiles.database.AppDatabase
 import com.rafalk.syncfiles.database.DirsPair
 import com.rafalk.syncfiles.ui.synced.IntervalPickerDialog

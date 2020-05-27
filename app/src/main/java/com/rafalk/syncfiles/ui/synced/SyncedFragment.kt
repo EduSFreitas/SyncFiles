@@ -48,8 +48,7 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
 
         val root = inflater.inflate(R.layout.fragment_synced, container, false)
 
-        val syncButton = root.findViewById<Button>(R.id.sync_button)
-        syncButton.setOnClickListener { view ->
+        root.findViewById<Button>(R.id.sync_button).setOnClickListener { view ->
             view.isEnabled = false
             launch(Dispatchers.Default) {
                 val dirs = db.dirsPairDao().getAll()
