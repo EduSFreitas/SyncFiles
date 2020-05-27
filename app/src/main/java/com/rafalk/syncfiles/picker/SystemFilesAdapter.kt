@@ -1,4 +1,4 @@
-package com.rafalk.syncfiles
+package com.rafalk.syncfiles.picker
 
 
 import android.os.Environment
@@ -7,8 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.rafalk.syncfiles.FilesListFragment.OnListFragmentInteractionListener
-import com.rafalk.syncfiles.SystemFilesAdapter.FileItem
+import com.rafalk.syncfiles.R
+import com.rafalk.syncfiles.picker.FilesListFragment.OnListFragmentInteractionListener
+import com.rafalk.syncfiles.picker.SystemFilesAdapter.FileItem
 import kotlinx.android.synthetic.main.fragment_file.view.*
 import timber.log.Timber
 import java.io.File

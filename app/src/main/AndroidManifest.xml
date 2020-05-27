@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".PickerActivity"
+            android:name=".picker.PickerActivity"
             android:label="@string/title_activity_system_files"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>

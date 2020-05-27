@@ -1,4 +1,4 @@
-package com.rafalk.syncfiles
+package com.rafalk.syncfiles.picker
 
 import android.content.Context
 import android.os.Bundle
@@ -15,6 +15,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccoun
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
+import com.rafalk.syncfiles.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 
@@ -61,7 +62,10 @@ class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
     private fun getRequestedAdapter(): RecyclerView.Adapter<*>? {
         when(activity?.intent?.getStringExtra("PICKER_TYPE")){
             "drive" -> {
-                return DriveFilesAdapter(driveListener, googleDriveService)
+                return DriveFilesAdapter(
+                    driveListener,
+                    googleDriveService
+                )
             }
             "local" -> {
                 return SystemFilesAdapter(listener)

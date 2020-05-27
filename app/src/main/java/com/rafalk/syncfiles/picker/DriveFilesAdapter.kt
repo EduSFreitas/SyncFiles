@@ -1,4 +1,4 @@
-package com.rafalk.syncfiles
+package com.rafalk.syncfiles.picker
 
 
 import android.view.LayoutInflater
@@ -8,7 +8,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.model.FileList
-import com.rafalk.syncfiles.DriveFilesAdapter.DriveItem
+import com.rafalk.syncfiles.R
+import com.rafalk.syncfiles.picker.DriveFilesAdapter.DriveItem
 import kotlinx.android.synthetic.main.fragment_file.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

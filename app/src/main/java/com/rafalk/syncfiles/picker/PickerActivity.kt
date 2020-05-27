@@ -1,4 +1,4 @@
-package com.rafalk.syncfiles
+package com.rafalk.syncfiles.picker
 
 import android.Manifest
 import android.app.Activity
@@ -8,6 +8,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.rafalk.syncfiles.R
 import kotlinx.android.synthetic.main.activity_picker.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
@@ -100,7 +101,8 @@ class PickerActivity : AppCompatActivity(),
             this, arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ), REQUEST_WRITE_STORAGE_REQUEST_CODE
+            ),
+            REQUEST_WRITE_STORAGE_REQUEST_CODE
         ) // your request code
     }
 
