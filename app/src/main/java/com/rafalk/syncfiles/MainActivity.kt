@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
@@ -24,13 +23,17 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.rafalk.syncfiles.database.AppDatabase
 import com.rafalk.syncfiles.database.DirsPair
+import com.rafalk.syncfiles.ui.synced.IntervalPickerDialog
 import com.rafalk.syncfiles.ui.synced.PairsListFragment
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.coroutines.*
 import timber.log.Timber
+import java.sql.Time
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
-    PairsListFragment.OnListFragmentInteractionListener {
+    PairsListFragment.OnListFragmentInteractionListener,
+    IntervalPickerDialog.IntervalPickerDialogListener {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var model: MainViewModel
@@ -152,5 +155,13 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
                 db.dirsPairDao().delete(item)
             }
         }
+    }
+
+    override fun onConfirmation(interval: Long) {
+        Timber.d("Got interval in milliseconds $interval: " +
+                "${TimeUnit.MILLISECONDS.toDays(interval)} days" +
+                "${TimeUnit.MILLISECONDS.toHours(interval)} hours" +
+                "${TimeUnit.MILLISECONDS.toMinutes(interval)} minutes" +
+                "${TimeUnit.MILLISECONDS.toSeconds(interval)} seconds")
     }
 }

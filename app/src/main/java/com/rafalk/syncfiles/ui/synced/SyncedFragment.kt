@@ -1,9 +1,7 @@
 package com.rafalk.syncfiles.ui.synced
 
 import android.app.NotificationChannel.DEFAULT_CHANNEL_ID
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
@@ -65,6 +63,11 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
             }
         }
 
+        root.findViewById<Button>(R.id.auto_sync).setOnClickListener { view ->
+            val intervalPickerDialog = IntervalPickerDialog()
+            intervalPickerDialog.show(fragmentManager, "IntervalPickerDialog")
+        }
+
         return root
     }
 
@@ -107,4 +110,5 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
             NotificationManagerCompat.from(mContext)
         notificationManager.notify(0, mBuilder.build())
     }
+
 }
