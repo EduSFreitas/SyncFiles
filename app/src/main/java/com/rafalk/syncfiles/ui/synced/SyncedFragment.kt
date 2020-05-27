@@ -69,7 +69,7 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
         root.findViewById<Switch>(R.id.enable_auto_sync_toggle)
             .setOnCheckedChangeListener { compoundButton, checked ->
                 if (checked) {
-                    val intervalPickerDialog = IntervalPickerDialog()
+                    val intervalPickerDialog = IntervalPickerDialog(compoundButton)
                     intervalPickerDialog.show(fragmentManager, "IntervalPickerDialog")
                 } else {
                     listener.onCancelAutoSync()

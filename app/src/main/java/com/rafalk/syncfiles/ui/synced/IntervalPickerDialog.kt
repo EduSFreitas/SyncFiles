@@ -3,9 +3,11 @@ package com.rafalk.syncfiles.ui.synced
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.widget.Button
+import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.RadioGroup
 import androidx.fragment.app.DialogFragment
@@ -18,7 +20,7 @@ import timber.log.Timber
  * Use the [IntervalPickerDialog.newInstance] factory method to
  * create an instance of this fragment.
  */
-class IntervalPickerDialog : DialogFragment() {
+class IntervalPickerDialog(private val switchButton: CompoundButton) : DialogFragment(){
     internal lateinit var listener: IntervalPickerDialogListener
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -58,7 +60,7 @@ class IntervalPickerDialog : DialogFragment() {
                         }
                     }
                     listener.onIntervalConfirmation(number.text.toString().toLong() * multiplier)
-                    dialog.cancel()
+                    dialog.dismiss()
                 }
             }
 
@@ -88,5 +90,9 @@ class IntervalPickerDialog : DialogFragment() {
         }
     }
 
+    override fun onCancel(dialog: DialogInterface?) {
+        super.onCancel(dialog)
+        switchButton.isChecked = false
+    }
 
 }
