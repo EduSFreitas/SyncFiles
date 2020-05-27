@@ -4,10 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
-import android.widget.Button
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.ui.AppBarConfiguration
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -21,7 +18,6 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.rafalk.syncfiles.database.AppDatabase
 import com.rafalk.syncfiles.database.DirsPair
-import com.rafalk.syncfiles.picker.PickerActivity
 import kotlinx.coroutines.*
 import timber.log.Timber
 
@@ -35,8 +31,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
 
     companion object {
         private const val REQUEST_SIGN_IN = 1
-        private const val GET_DRIVE_DIR_PATH = 2
-        private const val GET_LOCAL_DIR_PATH = 3
+        internal const val GET_DRIVE_DIR_PATH = 2
+        internal const val GET_LOCAL_DIR_PATH = 3
     }
 
 
@@ -79,58 +75,16 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
 //        setupActionBarWithNavController(navController, appBarConfiguration)
 //        navView.setupWithNavController(navController)
 
-        val addDriveDirButton: Button = findViewById(R.id.add_remote_dir_button)
-        addDriveDirButton.setOnClickListener {
-            val intent = Intent(this, PickerActivity::class.java)
-            intent.putExtra("PICKER_TYPE", "drive")
-            startActivityForResult(intent, GET_DRIVE_DIR_PATH)
-        }
 
-        val addLocalDirButton = findViewById<Button>(R.id.add_local_dir_button)
-        addLocalDirButton.setOnClickListener {
-            val intent = Intent(this, PickerActivity::class.java)
-            intent.putExtra("PICKER_TYPE", "local")
-            startActivityForResult(intent, GET_LOCAL_DIR_PATH)
-        }
-
-        val syncButton = findViewById<Button>(R.id.sync_button)
-        syncButton.setOnClickListener {
-            launch(Dispatchers.Default) {
-                val dirs = db.dirsPairDao().getAll()
-                for (pair in dirs) {
-                    SyncDirs(pair.remoteDirId, pair.localDir, googleDriveService)
-                }
-            }.invokeOnCompletion { Timber.d("Finished syncing") }
-        }
-
-        val addDirsPairButton = findViewById<Button>(R.id.add_pair)
-        addDirsPairButton.setOnClickListener {
-            launch(Dispatchers.Default) {
-                if (model.localDir.value != null && model.remoteDir.value != null && model.remoteDirId.value != null) {
-                    if (db.dirsPairDao()
-                            .count(model.localDir.value!!, model.remoteDirId.value!!) == 0
-                    ) {
-                        db.dirsPairDao().insertAll(
-                            DirsPair(
-                                model.localDir.value!!,
-                                model.remoteDir.value!!,
-                                model.remoteDirId.value!!
-                            )
-                        )
-                    }
-                }
-            }.invokeOnCompletion {
-                model.localDir.postValue(null)
-                model.remoteDir.postValue(null)
-                model.remoteDirId.postValue(null)
-            }
-        }
-
-        val remoteDirText = findViewById<EditText>(R.id.remote_dir_text)
-        model.remoteDir.observe(this, Observer { remoteDirText.setText(it) })
-
-        val localDirText = findViewById<EditText>(R.id.local_dir_text)
-        model.localDir.observe(this, Observer { localDirText.setText(it) })
+//        val syncButton = findViewById<Button>(R.id.sync_button)
+//        syncButton.setOnClickListener {
+//            launch(Dispatchers.Default) {
+//                val dirs = db.dirsPairDao().getAll()
+//                for (pair in dirs) {
+//                    SyncDirs(pair.remoteDirId, pair.localDir, googleDriveService)
+//                }
+//            }.invokeOnCompletion { Timber.d("Finished syncing") }
+//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -154,27 +108,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
                     Timber.d("Signin successful")
                 } else {
                     Timber.d("Signin request failed")
-                }
-            }
-            GET_DRIVE_DIR_PATH -> {
-                if (resultCode == Activity.RESULT_OK && result != null) {
-                    val path = result.getStringExtra("path")
-                    val id = result.getStringExtra("id")
-
-                    model.remoteDir.apply { value = path }
-                    model.remoteDirId.apply { value = id }
-
-                    Timber.d("Received $path")
-                    Timber.d("and id $id")
-                }
-            }
-            GET_LOCAL_DIR_PATH -> {
-                if (resultCode == Activity.RESULT_OK && result != null) {
-                    val path = result.getStringExtra("path")
-
-                    model.localDir.apply { value = path }
-
-                    Timber.d("Received $path")
                 }
             }
         }

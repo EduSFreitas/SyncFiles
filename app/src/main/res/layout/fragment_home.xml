@@ -5,4 +5,63 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
+
+    <EditText
+        android:id="@+id/remote_dir_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:enabled="false"
+        android:focusable="false"
+        android:importantForAutofill="no"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.061" />
+
+    <Button
+        android:id="@+id/add_remote_dir_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="19dp"
+        android:text="@string/add_remote"
+        app:layout_constraintBaseline_toBaselineOf="@+id/remote_dir_text"
+        app:layout_constraintStart_toEndOf="@+id/remote_dir_text" />
+
+    <EditText
+        android:id="@+id/local_dir_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:ems="10"
+        android:enabled="false"
+        android:focusable="false"
+        android:importantForAutofill="no"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.201" />
+
+    <Button
+        android:id="@+id/add_local_dir_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="17dp"
+        android:layout_marginTop="1dp"
+        android:text="@string/add_local"
+        app:layout_constraintStart_toEndOf="@+id/local_dir_text"
+        app:layout_constraintTop_toTopOf="@+id/local_dir_text" />
+
+    <Button
+        android:id="@+id/add_pair"
+        style="@android:style/Widget.Holo.Button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="23dp"
+        android:text="Add pair"
+        app:layout_constraintStart_toStartOf="@+id/add_local_dir_button"
+        app:layout_constraintTop_toBottomOf="@+id/add_local_dir_button" />
 </androidx.constraintlayout.widget.ConstraintLayout>
