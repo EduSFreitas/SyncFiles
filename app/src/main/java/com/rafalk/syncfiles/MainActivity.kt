@@ -24,6 +24,7 @@ import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
 import com.rafalk.syncfiles.database.AppDatabase
 import com.rafalk.syncfiles.database.DirsPair
+import com.rafalk.syncfiles.ui.synced.PairsListFragment
 import kotlinx.coroutines.*
 import timber.log.Timber
 

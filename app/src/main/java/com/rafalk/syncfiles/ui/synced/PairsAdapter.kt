@@ -1,13 +1,14 @@
-package com.rafalk.syncfiles
+package com.rafalk.syncfiles.ui.synced
 
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.rafalk.syncfiles.R
 
 
-import com.rafalk.syncfiles.PairsListFragment.OnListFragmentInteractionListener
+import com.rafalk.syncfiles.ui.synced.PairsListFragment.OnListFragmentInteractionListener
 import com.rafalk.syncfiles.database.DirsPair
 import com.rafalk.syncfiles.dummy.DummyContent.DummyItem
 

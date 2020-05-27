@@ -18,7 +18,7 @@
 
     <fragment
         android:id="@+id/fragment2"
-        android:name="com.rafalk.syncfiles.PairsListFragment"
+        android:name="com.rafalk.syncfiles.ui.synced.PairsListFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"

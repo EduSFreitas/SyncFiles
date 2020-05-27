@@ -1,4 +1,4 @@
-package com.rafalk.syncfiles
+package com.rafalk.syncfiles.ui.synced
 
 import android.content.Context
 import android.os.Bundle
@@ -11,11 +11,9 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
+import com.rafalk.syncfiles.MainViewModel
+import com.rafalk.syncfiles.R
 import com.rafalk.syncfiles.database.DirsPair
-
-import com.rafalk.syncfiles.dummy.DummyContent
-import com.rafalk.syncfiles.dummy.DummyContent.DummyItem
-import timber.log.Timber
 
 /**
  * A fragment representing a list of Items.
