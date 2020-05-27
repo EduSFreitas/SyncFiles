@@ -72,12 +72,14 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
                             )
                         )
                     }
+                    Snackbar.make(view, "Pair of directories added successfully!", Snackbar.LENGTH_SHORT).show()
+                } else{
+                    Snackbar.make(view, "Failure to add a pair!", Snackbar.LENGTH_SHORT).show()
                 }
             }.invokeOnCompletion {
                 model.localDir.postValue(null)
                 model.remoteDir.postValue(null)
                 model.remoteDirId.postValue(null)
-                Snackbar.make(view, "Pair of directories added successfully!", Snackbar.LENGTH_SHORT).show()
             }
         }
 
