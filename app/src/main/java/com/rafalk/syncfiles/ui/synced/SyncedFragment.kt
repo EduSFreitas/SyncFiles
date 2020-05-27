@@ -1,5 +1,6 @@
 package com.rafalk.syncfiles.ui.synced
 
+import android.app.AlarmManager
 import android.app.NotificationChannel.DEFAULT_CHANNEL_ID
 import android.content.Context
 import android.media.RingtoneManager
@@ -64,18 +65,18 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
             }
         }
 
-
-        root.findViewById<Switch>(R.id.enable_auto_sync_toggle)
-            .setOnCheckedChangeListener { compoundButton, checked ->
-                if (checked) {
-                    val intervalPickerDialog = IntervalPickerDialog(compoundButton)
-                    intervalPickerDialog.show(fragmentManager, "IntervalPickerDialog")
-                } else {
-                    listener.onCancelAutoSync()
-                }
-
+        val toogle = root.findViewById<Switch>(R.id.enable_auto_sync_toggle)
+        if (listener.isAutoSync()) {
+            toogle.isChecked = true
+        }
+        toogle.setOnCheckedChangeListener { compoundButton, checked ->
+            if (checked) {
+                val intervalPickerDialog = IntervalPickerDialog(compoundButton)
+                intervalPickerDialog.show(fragmentManager, "IntervalPickerDialog")
+            } else {
+                listener.onCancelAutoSync()
             }
-
+        }
         return root
     }
 
@@ -132,5 +133,6 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
 
     interface SyncedFragmentListener {
         fun onCancelAutoSync()
+        fun isAutoSync(): Boolean
     }
 }

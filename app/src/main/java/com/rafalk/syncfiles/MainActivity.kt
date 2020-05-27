@@ -51,7 +51,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
         private const val REQUEST_SIGN_IN = 1
         internal const val GET_DRIVE_DIR_PATH = 2
         internal const val GET_LOCAL_DIR_PATH = 3
-        private const val AUTO_SYNC = 4
     }
 
 
@@ -77,7 +76,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
 
         // google sign in
         requestSignInToGoogleAccount()
-        getGoogleDriveService()
 
         setContentView(R.layout.activity_main)
 
@@ -116,6 +114,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
             REQUEST_SIGN_IN -> {
                 if (resultCode == RESULT_OK && result != null) {
                     Timber.d("Signin successful")
+                    getGoogleDriveService()
                 } else {
                     Timber.d("Signin request failed")
                 }
@@ -177,7 +176,12 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
         )
 
         val intent = Intent(applicationContext, AutoSyncReceiver::class.java)
-        val alarmIntent = PendingIntent.getBroadcast(applicationContext, AUTO_SYNC, intent, 0)
+        val alarmIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
             System.currentTimeMillis(),
@@ -188,7 +192,24 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
 
     override fun onCancelAutoSync() {
         val intent = Intent(applicationContext, AutoSyncReceiver::class.java)
-        val alarmIntent = PendingIntent.getBroadcast(applicationContext, AUTO_SYNC, intent, 0)
+        val alarmIntent = PendingIntent.getBroadcast(
+            applicationContext,
+            0,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        alarmIntent.cancel()
         alarmManager.cancel(alarmIntent)
+    }
+
+    override fun isAutoSync(): Boolean {
+        val intent = Intent(applicationContext, AutoSyncReceiver::class.java)
+        val alarmIntent: PendingIntent? = PendingIntent.getBroadcast(
+            applicationContext,
+            0,
+            intent,
+            PendingIntent.FLAG_NO_CREATE
+        )
+        return alarmIntent != null
     }
 }
