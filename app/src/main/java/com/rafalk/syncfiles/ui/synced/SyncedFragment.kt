@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Switch
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.fragment.app.Fragment
@@ -31,6 +32,7 @@ import timber.log.Timber
 
 class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
 
+    private lateinit var listener: SyncedFragmentListener
     private lateinit var syncedViewModel: SyncedViewModel
     private lateinit var mContext: Context
 
@@ -63,10 +65,17 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
             }
         }
 
-        root.findViewById<Button>(R.id.auto_sync).setOnClickListener { view ->
-            val intervalPickerDialog = IntervalPickerDialog()
-            intervalPickerDialog.show(fragmentManager, "IntervalPickerDialog")
-        }
+
+        root.findViewById<Switch>(R.id.enable_auto_sync_toggle)
+            .setOnCheckedChangeListener { compoundButton, checked ->
+                if (checked) {
+                    val intervalPickerDialog = IntervalPickerDialog()
+                    intervalPickerDialog.show(fragmentManager, "IntervalPickerDialog")
+                } else {
+                    listener.onCancelAutoSync()
+                }
+
+            }
 
         return root
     }
@@ -74,6 +83,17 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
+
+        try {
+            // Instantiate the NoticeDialogListener so we can send events to the host
+            listener = context as SyncedFragmentListener
+        } catch (e: ClassCastException) {
+            // The activity doesn't implement the interface, throw exception
+            throw ClassCastException(
+                (context.toString() +
+                        " must implement SyncedFragmentListener")
+            )
+        }
     }
 
     private fun getGoogleDriveService(): Drive {
@@ -111,4 +131,7 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
         notificationManager.notify(0, mBuilder.build())
     }
 
+    interface SyncedFragmentListener {
+        fun onCancelAutoSync()
+    }
 }

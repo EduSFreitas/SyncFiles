@@ -10,7 +10,6 @@ import com.rafalk.syncfiles.R
 
 import com.rafalk.syncfiles.ui.synced.PairsListFragment.OnListFragmentInteractionListener
 import com.rafalk.syncfiles.database.DirsPair
-import com.rafalk.syncfiles.dummy.DummyContent.DummyItem
 
 import kotlinx.android.synthetic.main.fragment_pair.view.*
 

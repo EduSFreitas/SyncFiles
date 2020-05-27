@@ -1,5 +1,8 @@
 package com.rafalk.syncfiles
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -25,25 +28,29 @@ import com.rafalk.syncfiles.database.AppDatabase
 import com.rafalk.syncfiles.database.DirsPair
 import com.rafalk.syncfiles.ui.synced.IntervalPickerDialog
 import com.rafalk.syncfiles.ui.synced.PairsListFragment
+import com.rafalk.syncfiles.ui.synced.SyncedFragment
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.coroutines.*
 import timber.log.Timber
-import java.sql.Time
 import java.util.concurrent.TimeUnit
+
 
 class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
     PairsListFragment.OnListFragmentInteractionListener,
-    IntervalPickerDialog.IntervalPickerDialogListener {
+    IntervalPickerDialog.IntervalPickerDialogListener,
+    SyncedFragment.SyncedFragmentListener {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var model: MainViewModel
     private lateinit var db: AppDatabase
+    private lateinit var alarmManager: AlarmManager
     lateinit var googleDriveService: Drive
 
     companion object {
         private const val REQUEST_SIGN_IN = 1
         internal const val GET_DRIVE_DIR_PATH = 2
         internal const val GET_LOCAL_DIR_PATH = 3
+        private const val AUTO_SYNC = 4
     }
 
 
@@ -64,6 +71,8 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
         // get model
         model = ViewModelProviders.of(this).get(MainViewModel::class.java)
 
+        //get alarm manager
+        alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         // google sign in
         requestSignInToGoogleAccount()
@@ -157,11 +166,28 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
         }
     }
 
-    override fun onConfirmation(interval: Long) {
-        Timber.d("Got interval in milliseconds $interval: " +
-                "${TimeUnit.MILLISECONDS.toDays(interval)} days" +
-                "${TimeUnit.MILLISECONDS.toHours(interval)} hours" +
-                "${TimeUnit.MILLISECONDS.toMinutes(interval)} minutes" +
-                "${TimeUnit.MILLISECONDS.toSeconds(interval)} seconds")
+    override fun onIntervalConfirmation(intervalMillis: Long) {
+        Timber.d(
+            """Got interval in milliseconds $intervalMillis: 
+                ${TimeUnit.MILLISECONDS.toDays(intervalMillis)} days
+                ${TimeUnit.MILLISECONDS.toHours(intervalMillis)} hours
+                ${TimeUnit.MILLISECONDS.toMinutes(intervalMillis)} minutes
+                ${TimeUnit.MILLISECONDS.toSeconds(intervalMillis)} seconds"""
+        )
+
+        val intent = Intent(applicationContext, AutoSyncReceiver::class.java)
+        val alarmIntent = PendingIntent.getBroadcast(applicationContext, AUTO_SYNC, intent, 0)
+        alarmManager.setRepeating(
+            AlarmManager.RTC_WAKEUP,
+            System.currentTimeMillis(),
+            intervalMillis,
+            alarmIntent
+        )
+    }
+
+    override fun onCancelAutoSync() {
+        val intent = Intent(applicationContext, AutoSyncReceiver::class.java)
+        val alarmIntent = PendingIntent.getBroadcast(applicationContext, AUTO_SYNC, intent, 0)
+        alarmManager.cancel(alarmIntent)
     }
 }

@@ -57,7 +57,7 @@ class IntervalPickerDialog : DialogFragment() {
                             multiplier *= 24 * 60 * 60
                         }
                     }
-                    listener.onConfirmation(number.text.toString().toLong() * multiplier)
+                    listener.onIntervalConfirmation(number.text.toString().toLong() * multiplier)
                     dialog.cancel()
                 }
             }
@@ -70,7 +70,7 @@ class IntervalPickerDialog : DialogFragment() {
     }
 
     interface IntervalPickerDialogListener {
-        fun onConfirmation(interval: Long)
+        fun onIntervalConfirmation(interval: Long)
     }
 
     override fun onAttach(context: Context) {
