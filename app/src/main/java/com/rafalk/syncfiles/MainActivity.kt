@@ -147,7 +147,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
     }
 
     override fun onListFragmentInteraction(item: DirsPair?) {
-
-
+        if (item != null) {
+            launch(Dispatchers.Default) {
+                db.dirsPairDao().delete(item)
+            }
+        }
     }
 }

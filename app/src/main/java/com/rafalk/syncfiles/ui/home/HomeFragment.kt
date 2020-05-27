@@ -12,6 +12,7 @@ import android.widget.EditText
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.snackbar.Snackbar
 import com.rafalk.syncfiles.MainActivity
 import com.rafalk.syncfiles.MainActivity.Companion.GET_DRIVE_DIR_PATH
 import com.rafalk.syncfiles.MainActivity.Companion.GET_LOCAL_DIR_PATH
@@ -57,7 +58,7 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
         }
 
         val addDirsPairButton = root.findViewById<Button>(R.id.add_pair)
-        addDirsPairButton.setOnClickListener {
+        addDirsPairButton.setOnClickListener {view ->
             launch(Dispatchers.Default) {
                 if (model.localDir.value != null && model.remoteDir.value != null && model.remoteDirId.value != null) {
                     if (db.dirsPairDao()
@@ -76,6 +77,7 @@ class HomeFragment : Fragment(), CoroutineScope by MainScope() {
                 model.localDir.postValue(null)
                 model.remoteDir.postValue(null)
                 model.remoteDirId.postValue(null)
+                Snackbar.make(view, "Pair of directories added successfully!", Snackbar.LENGTH_SHORT).show()
             }
         }
 

@@ -67,4 +67,8 @@ class PairsAdapter(
         mValues = data
         notifyDataSetChanged()
     }
+
+    fun removeAt(adapterPosition: Int) {
+        mListener?.onListFragmentInteraction(mValues[adapterPosition])
+    }
 }

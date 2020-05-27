@@ -15,7 +15,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".picker.PickerActivity"
-            android:label="@string/title_activity_system_files"
+            android:label="@string/title_activity_picker"
             android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity

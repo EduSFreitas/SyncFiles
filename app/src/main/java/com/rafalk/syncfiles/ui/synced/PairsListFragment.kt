@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.rafalk.syncfiles.MainViewModel
 import com.rafalk.syncfiles.R
 import com.rafalk.syncfiles.database.DirsPair
@@ -22,6 +23,7 @@ import com.rafalk.syncfiles.database.DirsPair
  */
 class PairsListFragment : Fragment() {
 
+    private lateinit var mContext: Context
     private var listener: OnListFragmentInteractionListener? = null
     private var adapter: PairsAdapter? = null
 
@@ -52,7 +54,17 @@ class PairsListFragment : Fragment() {
                     )
                 )
             }
+
+            val swipeHandler = object : SwipeToDeleteCallback(mContext) {
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val adapter = view.adapter as PairsAdapter
+                    adapter.removeAt(viewHolder.adapterPosition)
+                }
+            }
+            val itemTouchHelper = ItemTouchHelper(swipeHandler)
+            itemTouchHelper.attachToRecyclerView(view)
         }
+
         return view
     }
 
@@ -68,6 +80,7 @@ class PairsListFragment : Fragment() {
         } else {
             throw RuntimeException(context.toString() + " must implement OnListFragmentInteractionListener")
         }
+        mContext = context
     }
 
     override fun onDetach() {
@@ -88,7 +101,6 @@ class PairsListFragment : Fragment() {
      * for more information.
      */
     interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onListFragmentInteraction(item: DirsPair?)
     }
 }
