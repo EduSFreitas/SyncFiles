@@ -13,10 +13,10 @@
     </fragment>
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.rafalk.syncfiles.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:id="@+id/nav_synced"
+        android:name="com.rafalk.syncfiles.ui.synced.SyncedFragment"
+        android:label="@string/menu_synced"
+        tools:layout="@layout/fragment_synced" />
 
     <fragment
         android:id="@+id/nav_slideshow"

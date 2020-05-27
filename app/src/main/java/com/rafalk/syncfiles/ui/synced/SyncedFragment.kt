@@ -1,4 +1,4 @@
-package com.rafalk.syncfiles.ui.gallery
+package com.rafalk.syncfiles.ui.synced
 
 import android.content.Context
 import android.os.Bundle
@@ -6,18 +6,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
-import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
-import com.rafalk.syncfiles.MainActivity
 import com.rafalk.syncfiles.R
 import com.rafalk.syncfiles.SyncDirs
 import com.rafalk.syncfiles.database.AppDatabase
@@ -27,9 +23,9 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class GalleryFragment : Fragment(), CoroutineScope by MainScope() {
+class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
 
-    private lateinit var galleryViewModel: GalleryViewModel
+    private lateinit var syncedViewModel: SyncedViewModel
     private lateinit var mContext: Context
 
     override fun onCreateView(
@@ -37,12 +33,12 @@ class GalleryFragment : Fragment(), CoroutineScope by MainScope() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        galleryViewModel =
-            ViewModelProviders.of(this).get(GalleryViewModel::class.java)
+        syncedViewModel =
+            ViewModelProviders.of(this).get(SyncedViewModel::class.java)
 
         val db = AppDatabase.getDatabase(mContext)
 
-        val root = inflater.inflate(R.layout.fragment_gallery, container, false)
+        val root = inflater.inflate(R.layout.fragment_synced, container, false)
 
         val syncButton = root.findViewById<Button>(R.id.sync_button)
         syncButton.setOnClickListener {
