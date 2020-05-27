@@ -15,6 +15,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.services.drive.Drive
 import com.google.api.services.drive.DriveScopes
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var model: MainViewModel
     private lateinit var db: AppDatabase
+    private lateinit var googleDriveService: Drive
 
     companion object {
         private const val REQUEST_SIGN_IN = 1
@@ -57,6 +59,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
 
         // google sign in
         requestSignInToGoogleAccount()
+        getGoogleDriveService()
 
         setContentView(R.layout.activity_main)
 //        val toolbar: Toolbar = findViewById(R.id.toolbar)
@@ -92,9 +95,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
         val syncButton = findViewById<Button>(R.id.sync_button)
         syncButton.setOnClickListener {
             launch(Dispatchers.Default) {
-                val dirs =  db.dirsPairDao().getAll()
+                val dirs = db.dirsPairDao().getAll()
                 for (pair in dirs) {
-                    SyncDirs(pair.remoteDirId, pair.localDir, getGoogleDriveService())
+                    SyncDirs(pair.remoteDirId, pair.localDir, googleDriveService)
                 }
             }.invokeOnCompletion { Timber.d("Finished syncing") }
         }
@@ -188,7 +191,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
         }
     }
 
-    private fun getGoogleDriveService(): Drive {
+    private fun getGoogleDriveService() {
         val googleAccount = GoogleSignIn.getLastSignedInAccount(this)
 
         // Use the authenticated account to sign in to the Drive service.
@@ -196,13 +199,20 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
             this, listOf(DriveScopes.DRIVE_FILE)
         )
         credential.selectedAccount = googleAccount!!.account
-        return Drive.Builder(
+        googleDriveService = Drive.Builder(
             AndroidHttp.newCompatibleTransport(),
             JacksonFactory.getDefaultInstance(),
             credential
         )
             .setApplicationName(getString(R.string.app_name))
             .build()
+        launch(Dispatchers.Default) {
+            try {
+                googleDriveService.files().get("root").setFields("id, name, mimeType").execute()
+            } catch (exception: UserRecoverableAuthIOException) {
+                startActivityForResult(exception.intent, REQUEST_SIGN_IN);
+            }
+        }
     }
 
     override fun onListFragmentInteraction(item: DirsPair?) {
