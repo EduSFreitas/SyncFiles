@@ -88,12 +88,12 @@ class SyncDirs(
             .files().list()
             .setSpaces("drive")
             .setQ("'${driveDirId}' in parents and trashed=false and mimeType != 'application/vnd.google-apps.folder'")
-            .setFields("nextPageToken, files(id, name, mimeType, modifiedTime)")
+            .setFields("nextPageToken, files(id, name, mimeType, modifiedTime, webContentLink)")
             .setPageToken(null)
             .execute()
         Timber.d("Result received $driveFiles")
 
-        syncFilesDiff(driveFiles.files.map { it.name to it }.toMap())
+        syncFilesDiff(driveFiles.files.filter { file -> file.webContentLink != null }.map { it.name to it }.toMap())
     }
 
     private fun syncFilesDiff(mapOfDriveFiles: Map<String, com.google.api.services.drive.model.File>) {
