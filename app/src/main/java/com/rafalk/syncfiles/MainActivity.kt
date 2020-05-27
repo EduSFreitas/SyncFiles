@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var model: MainViewModel
     private lateinit var db: AppDatabase
-    private lateinit var googleDriveService: Drive
+    lateinit var googleDriveService: Drive
 
     companion object {
         private const val REQUEST_SIGN_IN = 1
@@ -81,17 +81,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-
-
-//        val syncButton = findViewById<Button>(R.id.sync_button)
-//        syncButton.setOnClickListener {
-//            launch(Dispatchers.Default) {
-//                val dirs = db.dirsPairDao().getAll()
-//                for (pair in dirs) {
-//                    SyncDirs(pair.remoteDirId, pair.localDir, googleDriveService)
-//                }
-//            }.invokeOnCompletion { Timber.d("Finished syncing") }
-//        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
