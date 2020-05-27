@@ -17,10 +17,4 @@
         android:name="com.rafalk.syncfiles.ui.synced.SyncedFragment"
         android:label="@string/menu_synced"
         tools:layout="@layout/fragment_synced" />
-
-    <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.rafalk.syncfiles.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
 </navigation>

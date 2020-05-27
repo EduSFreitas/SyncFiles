@@ -12,9 +12,5 @@
             android:id="@+id/nav_synced"
             android:icon="@drawable/icon_sync"
             android:title="@string/menu_synced" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="@string/menu_slideshow" />
     </group>
 </menu>
