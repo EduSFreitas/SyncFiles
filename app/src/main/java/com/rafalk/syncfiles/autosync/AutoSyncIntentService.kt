@@ -56,7 +56,7 @@ class AutoSyncIntentService : IntentService("AutoSyncIntentService") {
 
         // Use the authenticated account to sign in to the Drive service.
         val credential = GoogleAccountCredential.usingOAuth2(
-            applicationContext, listOf(DriveScopes.DRIVE_FILE)
+            applicationContext, listOf(DriveScopes.DRIVE)
         )
         credential.selectedAccount = googleAccount!!.account
         return Drive.Builder(

@@ -79,7 +79,7 @@ class FilesListFragment : Fragment(), CoroutineScope by MainScope() {
 
         // Use the authenticated account to sign in to the Drive service.
         val credential = GoogleAccountCredential.usingOAuth2(
-            context, listOf(DriveScopes.DRIVE_FILE)
+            context, listOf(DriveScopes.DRIVE)
         )
         credential.selectedAccount = googleAccount!!.account
         googleDriveService = Drive.Builder(

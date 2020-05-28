@@ -101,7 +101,7 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
 
         // Use the authenticated account to sign in to the Drive service.
         val credential = GoogleAccountCredential.usingOAuth2(
-            mContext, listOf(DriveScopes.DRIVE_FILE)
+            mContext, listOf(DriveScopes.DRIVE)
         )
         credential.selectedAccount = googleAccount!!.account
         return Drive.Builder(

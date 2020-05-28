@@ -27,7 +27,6 @@ class PickerActivity : AppCompatActivity(),
 
     companion object {
         const val REQUEST_SIGN_IN = 1
-        private const val REQUEST_WRITE_STORAGE_REQUEST_CODE = 2
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, result: Intent?) {
@@ -47,8 +46,6 @@ class PickerActivity : AppCompatActivity(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        requestAppPermissions()
 
         setContentView(R.layout.activity_picker)
         setSupportActionBar(toolbar)
@@ -91,33 +88,6 @@ class PickerActivity : AppCompatActivity(),
     override fun onListFragmentInteraction(item: SystemFilesAdapter.FileItem?) {
         Timber.d("Clicked ${item?.file?.absolutePath}")
         currentDirectory = item?.file!!
-    }
-
-    private fun requestAppPermissions() {
-        if (hasReadPermissions() && hasWritePermissions()) {
-            return
-        }
-        ActivityCompat.requestPermissions(
-            this, arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ),
-            REQUEST_WRITE_STORAGE_REQUEST_CODE
-        ) // your request code
-    }
-
-    private fun hasReadPermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            baseContext,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun hasWritePermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            baseContext,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onDriveListFragmentInteraction(item: DriveFilesAdapter.DriveItem?) {

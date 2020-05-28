@@ -1,12 +1,16 @@
 package com.rafalk.syncfiles
 
+import android.Manifest
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
@@ -27,6 +31,7 @@ import com.google.api.services.drive.DriveScopes
 import com.rafalk.syncfiles.autosync.AutoSyncReceiver
 import com.rafalk.syncfiles.database.AppDatabase
 import com.rafalk.syncfiles.database.DirsPair
+import com.rafalk.syncfiles.picker.PickerActivity
 import com.rafalk.syncfiles.ui.synced.IntervalPickerDialog
 import com.rafalk.syncfiles.ui.synced.PairsListFragment
 import com.rafalk.syncfiles.ui.synced.SyncedFragment
@@ -51,6 +56,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
         private const val REQUEST_SIGN_IN = 1
         internal const val GET_DRIVE_DIR_PATH = 2
         internal const val GET_LOCAL_DIR_PATH = 3
+        private const val REQUEST_WRITE_STORAGE_REQUEST_CODE = 4
     }
 
 
@@ -76,6 +82,9 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
 
         // google sign in
         requestSignInToGoogleAccount()
+
+        // request storage
+        requestAppPermissions()
 
         setContentView(R.layout.activity_main)
 
@@ -139,7 +148,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
 
         // Use the authenticated account to sign in to the Drive service.
         val credential = GoogleAccountCredential.usingOAuth2(
-            this, listOf(DriveScopes.DRIVE_FILE)
+            this, listOf(DriveScopes.DRIVE)
         )
         credential.selectedAccount = googleAccount!!.account
         googleDriveService = Drive.Builder(
@@ -211,5 +220,32 @@ class MainActivity : AppCompatActivity(), CoroutineScope by MainScope(),
             PendingIntent.FLAG_NO_CREATE
         )
         return alarmIntent != null
+    }
+
+    private fun requestAppPermissions() {
+        if (hasReadPermissions() && hasWritePermissions()) {
+            return
+        }
+        ActivityCompat.requestPermissions(
+            this, arrayOf(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ),
+            REQUEST_WRITE_STORAGE_REQUEST_CODE
+        )
+    }
+
+    private fun hasReadPermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            baseContext,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    private fun hasWritePermissions(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            baseContext,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
     }
 }
