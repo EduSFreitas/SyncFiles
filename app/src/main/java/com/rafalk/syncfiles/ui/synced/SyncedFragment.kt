@@ -72,7 +72,7 @@ class SyncedFragment : Fragment(), CoroutineScope by MainScope() {
         toogle.setOnCheckedChangeListener { compoundButton, checked ->
             if (checked) {
                 val intervalPickerDialog = IntervalPickerDialog(compoundButton)
-                intervalPickerDialog.show(fragmentManager, "IntervalPickerDialog")
+                fragmentManager?.let { intervalPickerDialog.show(it, "IntervalPickerDialog") }
             } else {
                 listener.onCancelAutoSync()
             }

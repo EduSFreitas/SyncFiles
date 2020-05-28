@@ -20,7 +20,7 @@ import timber.log.Timber
  * Use the [IntervalPickerDialog.newInstance] factory method to
  * create an instance of this fragment.
  */
-class IntervalPickerDialog(private val switchButton: CompoundButton) : DialogFragment(){
+class IntervalPickerDialog(private val switchButton: CompoundButton) : DialogFragment() {
     internal lateinit var listener: IntervalPickerDialogListener
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -33,7 +33,7 @@ class IntervalPickerDialog(private val switchButton: CompoundButton) : DialogFra
             // Pass null as the parent view because its going in the dialog layout
             val view = inflater.inflate(R.layout.fragment_interval_picker_dialog, null)
             view.findViewById<Button>(R.id.cancelButton).setOnClickListener {
-                dialog.cancel()
+                dialog?.cancel()
             }
             view.findViewById<Button>(R.id.confirmButton).setOnClickListener {
                 val number = view.findViewById<EditText>(R.id.editText)
@@ -60,7 +60,7 @@ class IntervalPickerDialog(private val switchButton: CompoundButton) : DialogFra
                         }
                     }
                     listener.onIntervalConfirmation(number.text.toString().toLong() * multiplier)
-                    dialog.dismiss()
+                    dialog?.dismiss()
                 }
             }
 
@@ -90,9 +90,8 @@ class IntervalPickerDialog(private val switchButton: CompoundButton) : DialogFra
         }
     }
 
-    override fun onCancel(dialog: DialogInterface?) {
+    override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
         switchButton.isChecked = false
     }
-
 }
